@@ -18,6 +18,12 @@ npm run build
 npm run test
 ```
 
+## Theme Gallery
+
+Explore the full theme catalog and variants:
+
+- Theme Gallery: /themes
+
 ## Choose an Adapter
 
 ### React

@@ -8,18 +8,16 @@ export default defineConfig({
     socialLinks: [{ icon: "github", link: "https://github.com/AdamZouli/modal-kit" }],
     nav: [
       { text: "Guide", link: "/getting-started" },
-      { text: "API", link: "/api" },
-      { text: "Themes", link: "/themes" },
-      { text: "Examples", link: "/examples" }
+      { text: "Theme Gallery", link: "/themes" },
+      { text: "API", link: "/api" }
     ],
     sidebar: [
       {
         text: "Guide",
         items: [
           { text: "Getting Started", link: "/getting-started" },
-          { text: "API", link: "/api" },
-          { text: "Themes", link: "/themes" },
-          { text: "Examples", link: "/examples" }
+          { text: "Theme Gallery", link: "/themes" },
+          { text: "API", link: "/api" }
         ]
       }
     ],

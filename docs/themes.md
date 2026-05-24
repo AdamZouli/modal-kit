@@ -1,5 +1,11 @@
 # Themes
 
+## Theme Gallery
+
+Use the gallery to compare every theme and variant in one place:
+
+- Theme Gallery: /themes
+
 Themes are CSS variable overrides applied via classes from `themeClassNames`.
 
 ## Available Themes

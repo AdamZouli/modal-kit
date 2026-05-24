@@ -1,5 +1,9 @@
 # modal-kit
 
+[![Deploy Docs](https://github.com/AdamZouli/modal-kit/actions/workflows/docs.yml/badge.svg)](https://github.com/AdamZouli/modal-kit/actions/workflows/docs.yml)
+
+Docs: https://adamzouli.github.io/modal-kit/
+
 Modal Kit is a lightweight, accessible modal engine with adapters for React, Vue, and Web Components. It ships with a theme system and confirmation modal presets that are consistent across frameworks.
 
 ## Highlights
