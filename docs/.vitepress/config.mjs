@@ -5,6 +5,7 @@ export default defineConfig({
   description: "Accessible modal engine with adapters and themes.",
   base: "/modal-kit/",
   themeConfig: {
+    socialLinks: [{ icon: "github", link: "https://github.com/AdamZouli/modal-kit" }],
     nav: [
       { text: "Guide", link: "/getting-started" },
       { text: "API", link: "/api" },
@@ -21,6 +22,14 @@ export default defineConfig({
           { text: "Examples", link: "/examples" }
         ]
       }
-    ]
+    ],
+    editLink: {
+      pattern: "https://github.com/AdamZouli/modal-kit/edit/main/docs/:path",
+      text: "Edit this page on GitHub"
+    },
+    footer: {
+      message: "Released under the MIT License.",
+      copyright: "Copyright 2026"
+    }
   }
 });

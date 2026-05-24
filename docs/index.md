@@ -1,40 +1,27 @@
-# Modal Kit
-
-Accessible modal engine with adapters for React, Vue, and Web Components. Includes a theme system and confirmation modal presets.
-
-## Quick Start
-
-```
-npm install
-npm run build
-```
-
-## Install Packages
-
-```
-npm install @modal-kit/core @modal-kit/ui
-```
-
-## Core Example
-
-```ts
-import { createModalController, createModalManager } from "@modal-kit/core";
-
-const manager = createModalManager();
-const controller = createModalController("demo", manager, {
-  container: document.querySelector(".modal") as HTMLElement,
-  overlay: document.querySelector(".overlay") as HTMLElement
-});
-
-controller.open();
-```
-
-## Adapters
-
-- React: `@modal-kit/react`
-- Vue: `@modal-kit/vue`
-- Web Components: `@modal-kit/web-components`
-
-## Themes
-
-See the Themes page for available theme classes and variants.
+---
+layout: home
+title: Modal Kit
+hero:
+  name: Modal Kit
+  text: Accessible modals, consistent across frameworks
+  tagline: Core behavior, themed UI, and confirm presets for React, Vue, and Web Components.
+  actions:
+    - theme: brand
+      text: Getting Started
+      link: /getting-started
+    - theme: alt
+      text: API Reference
+      link: /api
+    - theme: alt
+      text: Theme Gallery
+      link: /themes
+features:
+  - title: Framework adapters
+    details: Use the same API across React, Vue, and Web Components.
+  - title: Accessible by default
+    details: Focus trap, ESC close, overlay close, scroll lock, and focus restore.
+  - title: Design systems built in
+    details: A curated theme library with variants for info, approve, and destructive actions.
+  - title: Confirm presets
+    details: Opinionated confirm modal with consistent variants and labels.
+---
