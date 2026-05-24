@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/core" },
+    { "path": "packages/ui" },
+    { "path": "packages/react" },
+    { "path": "packages/vue" },
+    { "path": "packages/web-components" }
+  ]
+}

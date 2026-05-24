@@ -1,0 +1,535 @@
+:root {
+  --mk-font-family: "IBM Plex Sans", system-ui, sans-serif;
+  --mk-surface: #0f172a;
+  --mk-surface-contrast: #f8fafc;
+  --mk-overlay: rgba(15, 23, 42, 0.6);
+  --mk-border: #1e293b;
+  --mk-shadow: 0 24px 60px rgba(15, 23, 42, 0.55);
+  --mk-radius: 16px;
+  --mk-action-gap: 12px;
+  --mk-focus: #38bdf8;
+  --mk-info: #38bdf8;
+  --mk-danger: #ef4444;
+  --mk-danger-strong: #ef4444;
+  --mk-success: #22c55e;
+}
+
+.mk-theme-brutalist {
+  --mk-font-family: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --mk-surface: #0b0b0b;
+  --mk-surface-contrast: #f5f5f5;
+  --mk-overlay: rgba(0, 0, 0, 0.85);
+  --mk-border: #f5f5f5;
+  --mk-shadow: 14px 14px 0 #f5f5f5;
+  --mk-radius: 0px;
+  --mk-focus: #facc15;
+  --mk-info: #22d3ee;
+  --mk-danger: #ff3b30;
+  --mk-success: #22c55e;
+}
+
+.mk-theme-retro {
+  --mk-font-family: "Space Mono", "IBM Plex Sans", system-ui, sans-serif;
+  --mk-surface: #fef3c7;
+  --mk-surface-contrast: #1f2937;
+  --mk-overlay: rgba(15, 23, 42, 0.25);
+  --mk-border: #1f2937;
+  --mk-shadow: 0 22px 0 #1f2937;
+  --mk-radius: 18px;
+  --mk-focus: #d946ef;
+  --mk-info: #0ea5e9;
+  --mk-danger: #f97316;
+  --mk-success: #059669;
+}
+
+.mk-theme-swiss {
+  --mk-font-family: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --mk-surface: #f5f5f4;
+  --mk-surface-contrast: #111827;
+  --mk-overlay: rgba(17, 24, 39, 0.4);
+  --mk-border: #111827;
+  --mk-shadow: 0 18px 0 rgba(17, 24, 39, 0.55);
+  --mk-radius: 6px;
+  --mk-focus: #dc2626;
+  --mk-info: #2563eb;
+  --mk-danger: #b91c1c;
+  --mk-success: #15803d;
+}
+
+.mk-theme-cyber {
+  --mk-font-family: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --mk-surface: #06070f;
+  --mk-surface-contrast: #e2e8f0;
+  --mk-overlay: rgba(6, 7, 15, 0.75);
+  --mk-border: #38bdf8;
+  --mk-shadow: 0 0 0 2px #38bdf8, 0 0 60px rgba(56, 189, 248, 0.5);
+  --mk-radius: 14px;
+  --mk-focus: #22d3ee;
+  --mk-info: #38bdf8;
+  --mk-danger: #f43f5e;
+  --mk-success: #22c55e;
+}
+
+.mk-theme-paper {
+  --mk-font-family: "IBM Plex Sans", system-ui, sans-serif;
+  --mk-surface: #fffaf0;
+  --mk-surface-contrast: #3f3f46;
+  --mk-overlay: rgba(63, 63, 70, 0.25);
+  --mk-border: #e7e5e4;
+  --mk-shadow: 0 20px 0 rgba(63, 63, 70, 0.2);
+  --mk-radius: 26px;
+  --mk-focus: #f59e0b;
+  --mk-info: #0ea5e9;
+  --mk-danger: #ef4444;
+  --mk-success: #16a34a;
+}
+
+.mk-theme-glass {
+  --mk-font-family: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --mk-surface: rgba(15, 23, 42, 0.72);
+  --mk-surface-contrast: #f1f5f9;
+  --mk-overlay: rgba(2, 6, 23, 0.55);
+  --mk-border: rgba(148, 163, 184, 0.5);
+  --mk-shadow: 0 40px 90px rgba(15, 23, 42, 0.5);
+  --mk-radius: 24px;
+  --mk-focus: #38bdf8;
+  --mk-info: #7dd3fc;
+  --mk-danger: #fb7185;
+  --mk-success: #34d399;
+}
+
+.mk-theme-y2k {
+  --mk-font-family: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --mk-surface: #fdf2ff;
+  --mk-surface-contrast: #312e81;
+  --mk-overlay: rgba(49, 46, 129, 0.25);
+  --mk-border: #a855f7;
+  --mk-shadow: 0 24px 0 #a855f7;
+  --mk-radius: 28px;
+  --mk-focus: #ec4899;
+  --mk-info: #a855f7;
+  --mk-danger: #f43f5e;
+  --mk-success: #10b981;
+}
+
+.mk-theme-mono {
+  --mk-font-family: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --mk-surface: #ffffff;
+  --mk-surface-contrast: #0b0b0b;
+  --mk-overlay: rgba(11, 11, 11, 0.5);
+  --mk-border: #0b0b0b;
+  --mk-shadow: 0 0 0 3px #0b0b0b;
+  --mk-radius: 0px;
+  --mk-focus: #0b0b0b;
+  --mk-info: #0b0b0b;
+  --mk-danger: #0b0b0b;
+  --mk-success: #0b0b0b;
+}
+
+.mk-theme-bauhaus {
+  --mk-font-family: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --mk-surface: #fff7ed;
+  --mk-surface-contrast: #111827;
+  --mk-overlay: rgba(17, 24, 39, 0.4);
+  --mk-border: #111827;
+  --mk-shadow: 12px 12px 0 #2563eb;
+  --mk-radius: 14px;
+  --mk-focus: #ef4444;
+  --mk-info: #2563eb;
+  --mk-danger: #dc2626;
+  --mk-success: #059669;
+}
+
+.mk-theme-noir {
+  --mk-font-family: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --mk-surface: #0a0a0a;
+  --mk-surface-contrast: #e5e7eb;
+  --mk-overlay: rgba(0, 0, 0, 0.9);
+  --mk-border: #2d2d2d;
+  --mk-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  --mk-radius: 10px;
+  --mk-focus: #f59e0b;
+  --mk-info: #fbbf24;
+  --mk-danger: #f87171;
+  --mk-success: #a3e635;
+}
+
+.mk-theme-pastel {
+  --mk-font-family: "IBM Plex Sans", system-ui, sans-serif;
+  --mk-surface: #fdf4ff;
+  --mk-surface-contrast: #4338ca;
+  --mk-overlay: rgba(99, 102, 241, 0.2);
+  --mk-border: #c4b5fd;
+  --mk-shadow: 0 24px 40px rgba(139, 92, 246, 0.2);
+  --mk-radius: 24px;
+  --mk-focus: #a855f7;
+  --mk-info: #6366f1;
+  --mk-danger: #fb7185;
+  --mk-success: #34d399;
+}
+
+.mk-theme-terminal {
+  --mk-font-family: "Space Mono", "IBM Plex Sans", system-ui, sans-serif;
+  --mk-surface: #041108;
+  --mk-surface-contrast: #86efac;
+  --mk-overlay: rgba(4, 17, 8, 0.8);
+  --mk-border: #22c55e;
+  --mk-shadow: 0 0 0 2px #22c55e, 0 0 30px rgba(34, 197, 94, 0.4);
+  --mk-radius: 6px;
+  --mk-focus: #4ade80;
+  --mk-info: #22c55e;
+  --mk-danger: #f97316;
+  --mk-success: #22c55e;
+}
+
+.mk-theme-candy {
+  --mk-font-family: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --mk-surface: #fff1f2;
+  --mk-surface-contrast: #7c2d12;
+  --mk-overlay: rgba(251, 113, 133, 0.25);
+  --mk-border: #f472b6;
+  --mk-shadow: 0 18px 0 #f472b6;
+  --mk-radius: 26px;
+  --mk-focus: #fb7185;
+  --mk-info: #f472b6;
+  --mk-danger: #ef4444;
+  --mk-success: #22c55e;
+}
+
+.mk-theme-nature {
+  --mk-font-family: "IBM Plex Sans", system-ui, sans-serif;
+  --mk-surface: #f0fdf4;
+  --mk-surface-contrast: #14532d;
+  --mk-overlay: rgba(20, 83, 45, 0.2);
+  --mk-border: #16a34a;
+  --mk-shadow: 0 20px 0 #16a34a;
+  --mk-radius: 20px;
+  --mk-focus: #22c55e;
+  --mk-info: #16a34a;
+  --mk-danger: #f97316;
+  --mk-success: #16a34a;
+}
+
+.mk-theme-futurist {
+  --mk-font-family: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --mk-surface: #f8fafc;
+  --mk-surface-contrast: #0f172a;
+  --mk-overlay: rgba(15, 23, 42, 0.35);
+  --mk-border: #cbd5f5;
+  --mk-shadow: 0 24px 50px rgba(15, 23, 42, 0.18);
+  --mk-radius: 30px;
+  --mk-focus: #0ea5e9;
+  --mk-info: #38bdf8;
+  --mk-danger: #ef4444;
+  --mk-success: #22c55e;
+}
+
+.mk-theme-gothic {
+  --mk-font-family: "IBM Plex Sans", system-ui, sans-serif;
+  --mk-surface: #120a19;
+  --mk-surface-contrast: #f8fafc;
+  --mk-overlay: rgba(18, 10, 25, 0.85);
+  --mk-border: #4c1d95;
+  --mk-shadow: 0 24px 60px rgba(76, 29, 149, 0.5);
+  --mk-radius: 10px;
+  --mk-focus: #c084fc;
+  --mk-info: #a855f7;
+  --mk-danger: #f43f5e;
+  --mk-success: #22c55e;
+}
+
+.mk-modal {
+  font-family: var(--mk-font-family);
+  color: var(--mk-surface-contrast);
+}
+
+.mk-modal__overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--mk-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  z-index: 50;
+}
+
+.mk-modal__panel {
+  background: var(--mk-surface);
+  color: var(--mk-surface-contrast);
+  border: 1px solid var(--mk-border);
+  border-radius: var(--mk-radius);
+  box-shadow: var(--mk-shadow);
+  max-width: 520px;
+  width: min(100%, 520px);
+  padding: 28px 28px 24px;
+  display: grid;
+  gap: 12px;
+}
+
+.mk-modal__header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.mk-modal__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  border: 1px solid var(--mk-border);
+  background: color-mix(in srgb, var(--mk-border), transparent 60%);
+}
+
+.mk-modal__text {
+  display: grid;
+  gap: 6px;
+}
+
+.mk-modal__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.mk-modal__description {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  opacity: 0.85;
+}
+
+.mk-modal__details {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  opacity: 0.75;
+}
+
+.mk-modal__actions {
+  display: flex;
+  gap: var(--mk-action-gap);
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.mk-modal__button {
+  border: 2px solid var(--mk-border);
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.mk-modal__button:focus-visible {
+  outline: 2px solid var(--mk-focus);
+  outline-offset: 2px;
+}
+
+.mk-modal__button--confirm {
+  background: var(--mk-success);
+  color: #0b0f1a;
+}
+
+.mk-modal__button--cancel {
+  background: transparent;
+  color: var(--mk-surface-contrast);
+  border-color: var(--mk-border);
+}
+
+.mk-modal__button:hover {
+  transform: translateY(-1px);
+}
+
+.mk-theme-brutalist .mk-modal__panel {
+  outline: 3px solid var(--mk-border);
+}
+
+.mk-theme-brutalist .mk-modal__button {
+  border-radius: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.mk-theme-brutalist .mk-modal__header {
+  border-bottom: 3px solid var(--mk-border);
+  padding-bottom: 12px;
+}
+
+.mk-theme-retro .mk-modal__panel {
+  background-image:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.5), transparent),
+    repeating-linear-gradient(0deg, rgba(17, 24, 39, 0.04), rgba(17, 24, 39, 0.04) 2px, transparent 2px, transparent 6px);
+}
+
+.mk-theme-retro .mk-modal__button {
+  border-radius: 12px;
+}
+
+.mk-theme-swiss .mk-modal__header {
+  border-bottom: 2px solid var(--mk-border);
+  padding-bottom: 10px;
+}
+
+.mk-theme-swiss .mk-modal__title {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.mk-theme-swiss .mk-modal__panel {
+  border-width: 2px;
+}
+
+.mk-theme-cyber .mk-modal__panel {
+  background-image: linear-gradient(135deg, rgba(56, 189, 248, 0.08), transparent 55%);
+}
+
+.mk-theme-cyber .mk-modal__button {
+  border-color: #22d3ee;
+  box-shadow: 0 0 16px rgba(34, 211, 238, 0.35);
+}
+
+.mk-theme-paper .mk-modal__panel {
+  background-image: radial-gradient(circle at top left, rgba(251, 191, 36, 0.1), transparent 60%);
+}
+
+.mk-theme-paper .mk-modal__panel {
+  background-image:
+    radial-gradient(circle at top left, rgba(251, 191, 36, 0.12), transparent 60%),
+    repeating-linear-gradient(90deg, rgba(120, 113, 108, 0.08), rgba(120, 113, 108, 0.08) 1px, transparent 1px, transparent 5px);
+}
+
+.mk-theme-glass .mk-modal__panel {
+  backdrop-filter: blur(16px);
+}
+
+.mk-theme-glass .mk-modal__panel {
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 30px 80px rgba(2, 6, 23, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.mk-theme-y2k .mk-modal__button {
+  border-radius: 999px;
+}
+
+.mk-theme-y2k .mk-modal__panel {
+  background-image: linear-gradient(120deg, rgba(168, 85, 247, 0.15), rgba(236, 72, 153, 0.08) 60%, transparent);
+}
+
+.mk-theme-mono .mk-modal__button {
+  background: #0b0b0b;
+  color: #ffffff;
+}
+
+.mk-theme-mono .mk-modal__panel {
+  border-width: 3px;
+}
+
+.mk-theme-bauhaus .mk-modal__panel {
+  background-image: linear-gradient(135deg, rgba(37, 99, 235, 0.15), transparent 55%);
+}
+
+.mk-theme-bauhaus .mk-modal__button {
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.mk-theme-noir .mk-modal__panel {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
+}
+
+.mk-theme-pastel .mk-modal__panel {
+  background-image: linear-gradient(140deg, rgba(196, 181, 253, 0.25), transparent 60%);
+}
+
+.mk-theme-terminal .mk-modal__panel {
+  border-width: 2px;
+  box-shadow: 0 0 0 2px #22c55e, 0 0 24px rgba(34, 197, 94, 0.4);
+}
+
+.mk-theme-terminal .mk-modal__button {
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.mk-theme-candy .mk-modal__panel {
+  background-image: linear-gradient(135deg, rgba(251, 113, 133, 0.2), transparent 60%);
+}
+
+.mk-theme-nature .mk-modal__panel {
+  background-image: radial-gradient(circle at top left, rgba(34, 197, 94, 0.15), transparent 60%);
+}
+
+.mk-theme-futurist .mk-modal__panel {
+  background-image: linear-gradient(135deg, rgba(14, 165, 233, 0.1), transparent 55%);
+}
+
+.mk-theme-futurist .mk-modal__button {
+  border-radius: 999px;
+}
+
+.mk-theme-gothic .mk-modal__panel {
+  background-image: linear-gradient(180deg, rgba(192, 132, 252, 0.12), transparent 60%);
+}
+
+.mk-modal--confirm .mk-modal__button--confirm {
+  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.25);
+}
+
+.mk-modal--confirm[data-variant="destructive"] .mk-modal__button--confirm {
+  background: var(--mk-danger-strong);
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(239, 68, 68, 0.35);
+}
+
+.mk-modal--confirm[data-variant="approve"] .mk-modal__button--confirm {
+  background: var(--mk-success);
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(34, 197, 94, 0.35);
+}
+
+.mk-modal--confirm[data-variant="destructive"] .mk-modal__panel {
+  border-color: var(--mk-danger-strong);
+  box-shadow: var(--mk-shadow), inset 0 4px 0 var(--mk-danger-strong);
+}
+
+.mk-modal--confirm[data-variant="approve"] .mk-modal__panel {
+  border-color: var(--mk-success);
+  box-shadow: var(--mk-shadow), inset 0 4px 0 var(--mk-success);
+}
+
+.mk-modal--confirm[data-variant="destructive"] .mk-modal__title {
+  color: var(--mk-danger-strong);
+}
+
+.mk-modal--confirm[data-variant="approve"] .mk-modal__title {
+  color: var(--mk-success);
+}
+
+.mk-modal--confirm[data-variant="info"] .mk-modal__button--confirm {
+  background: var(--mk-info);
+  box-shadow: 0 10px 20px rgba(56, 189, 248, 0.25);
+}
+
+.mk-modal--confirm[data-variant="destructive"] .mk-modal__icon {
+  border-color: var(--mk-danger-strong);
+  background: color-mix(in srgb, var(--mk-danger-strong), transparent 75%);
+  color: var(--mk-danger-strong);
+}
+
+.mk-modal--confirm[data-variant="approve"] .mk-modal__icon {
+  border-color: var(--mk-success);
+  background: color-mix(in srgb, var(--mk-success), transparent 75%);
+  color: var(--mk-success);
+}
+
+.mk-modal--confirm[data-variant="info"] .mk-modal__icon {
+  border-color: color-mix(in srgb, var(--mk-info), transparent 50%);
+  background: color-mix(in srgb, var(--mk-info), transparent 80%);
+}
