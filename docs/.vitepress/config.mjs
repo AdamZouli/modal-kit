@@ -10,7 +10,7 @@ export default defineConfig({
     nav: [
       { text: "Guide", link: "/getting-started" },
       { text: "Theme Gallery", link: "/themes" },
-      { text: "Live Examples", link: "./examples/theme-gallery.html" },
+      { text: "Live Examples", link: "./examples/theme-gallery.html", target: "_self" },
       { text: "API", link: "/api" }
     ],
     sidebar: [
