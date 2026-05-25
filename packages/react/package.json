@@ -1,6 +1,7 @@
 {
   "name": "@modal-kit/react",
   "version": "0.1.0",
+  "author": "Adam Zouli Dev",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -14,8 +15,8 @@
   },
   "files": ["dist"],
   "dependencies": {
-    "@modal-kit/core": "file:../core",
-    "@modal-kit/ui": "file:../ui"
+    "@modal-kit/core": "^0.1.0",
+    "@modal-kit/ui": "^0.1.0"
   },
   "peerDependencies": {
     "react": ">=18",

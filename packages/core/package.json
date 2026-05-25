@@ -1,6 +1,7 @@
 {
   "name": "@modal-kit/core",
   "version": "0.1.0",
+  "author": "Adam Zouli Dev",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
