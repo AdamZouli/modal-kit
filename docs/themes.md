@@ -26,6 +26,8 @@ Themes are CSS variable overrides applied via classes from `themeClassNames`.
 - nature
 - futurist
 - gothic
+- signal
+- aurora
 
 ## Variants
 

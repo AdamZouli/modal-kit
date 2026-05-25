@@ -1,4 +1,5 @@
-export const modalClassNames = {
+// src/index.ts
+var modalClassNames = {
   root: "mk-modal",
   overlay: "mk-modal__overlay",
   panel: "mk-modal__panel",
@@ -13,9 +14,8 @@ export const modalClassNames = {
   confirmButton: "mk-modal__button--confirm",
   cancelButton: "mk-modal__button--cancel",
   confirmVariant: "mk-modal--confirm"
-} as const;
-
-export const themeClassNames = {
+};
+var themeClassNames = {
   brutalist: "mk-theme-brutalist",
   retro: "mk-theme-retro",
   swiss: "mk-theme-swiss",
@@ -34,6 +34,8 @@ export const themeClassNames = {
   gothic: "mk-theme-gothic",
   signal: "mk-theme-signal",
   aurora: "mk-theme-aurora"
-} as const;
-
-export type ModalTheme = keyof typeof themeClassNames;
+};
+export {
+  modalClassNames,
+  themeClassNames
+};

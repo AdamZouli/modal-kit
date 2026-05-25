@@ -373,6 +373,39 @@
   transform: translateY(-1px);
 }
 
+.mk-modal[data-variant="info"] .mk-modal__icon,
+.mk-modal[data-variant="info"] .mk-modal__button--confirm {
+  background: var(--mk-info);
+  color: #0b0f1a;
+  border-color: var(--mk-info);
+}
+
+.mk-modal[data-variant="approve"] .mk-modal__icon,
+.mk-modal[data-variant="approve"] .mk-modal__button--confirm {
+  background: var(--mk-success);
+  color: #0b0f1a;
+  border-color: var(--mk-success);
+}
+
+.mk-modal[data-variant="destructive"] .mk-modal__icon,
+.mk-modal[data-variant="destructive"] .mk-modal__button--confirm {
+  background: var(--mk-danger-strong);
+  color: #0b0f1a;
+  border-color: var(--mk-danger-strong);
+}
+
+.mk-modal[data-variant="info"] .mk-modal__title {
+  color: var(--mk-info);
+}
+
+.mk-modal[data-variant="approve"] .mk-modal__title {
+  color: var(--mk-success);
+}
+
+.mk-modal[data-variant="destructive"] .mk-modal__title {
+  color: var(--mk-danger-strong);
+}
+
 .mk-theme-brutalist .mk-modal__panel {
   outline: 3px solid var(--mk-border);
 }
@@ -426,31 +459,17 @@
 }
 
 .mk-theme-paper .mk-modal__panel {
-  background-image:
-    radial-gradient(circle at top left, rgba(251, 191, 36, 0.12), transparent 60%),
-    repeating-linear-gradient(90deg, rgba(120, 113, 108, 0.08), rgba(120, 113, 108, 0.08) 1px, transparent 1px, transparent 5px);
+  background-image: radial-gradient(circle at top left, rgba(251, 191, 36, 0.1), transparent 60%);
 }
 
 .mk-theme-glass .mk-modal__panel {
-  backdrop-filter: blur(16px);
-}
-
-.mk-theme-glass .mk-modal__panel {
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  box-shadow: 0 30px 80px rgba(2, 6, 23, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-}
-
-.mk-theme-y2k .mk-modal__button {
-  border-radius: 999px;
+  backdrop-filter: blur(12px);
 }
 
 .mk-theme-y2k .mk-modal__panel {
-  background-image: linear-gradient(120deg, rgba(168, 85, 247, 0.15), rgba(236, 72, 153, 0.08) 60%, transparent);
-}
-
-.mk-theme-mono .mk-modal__button {
-  background: #0b0b0b;
-  color: #ffffff;
+  background-image:
+    linear-gradient(160deg, rgba(236, 72, 153, 0.15), transparent 50%),
+    radial-gradient(circle at top right, rgba(168, 85, 247, 0.12), transparent 55%);
 }
 
 .mk-theme-mono .mk-modal__panel {
@@ -458,52 +477,43 @@
 }
 
 .mk-theme-bauhaus .mk-modal__panel {
-  background-image: linear-gradient(135deg, rgba(37, 99, 235, 0.15), transparent 55%);
-}
-
-.mk-theme-bauhaus .mk-modal__button {
-  border-radius: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  background-image:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.1), transparent 60%),
+    linear-gradient(315deg, rgba(239, 68, 68, 0.08), transparent 50%);
 }
 
 .mk-theme-noir .mk-modal__panel {
-  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
+  background-image: radial-gradient(circle at top right, rgba(245, 158, 11, 0.15), transparent 60%);
 }
 
 .mk-theme-pastel .mk-modal__panel {
-  background-image: linear-gradient(140deg, rgba(196, 181, 253, 0.25), transparent 60%);
+  background-image:
+    linear-gradient(135deg, rgba(196, 181, 253, 0.18), transparent 55%),
+    radial-gradient(circle at top right, rgba(251, 113, 133, 0.1), transparent 60%);
 }
 
 .mk-theme-terminal .mk-modal__panel {
-  border-width: 2px;
-  box-shadow: 0 0 0 2px #22c55e, 0 0 24px rgba(34, 197, 94, 0.4);
-}
-
-.mk-theme-terminal .mk-modal__button {
-  border-radius: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  background-image: repeating-linear-gradient(180deg, rgba(34, 197, 94, 0.08), rgba(34, 197, 94, 0.08) 1px, transparent 1px, transparent 5px);
 }
 
 .mk-theme-candy .mk-modal__panel {
-  background-image: linear-gradient(135deg, rgba(251, 113, 133, 0.2), transparent 60%);
+  background-image:
+    radial-gradient(circle at top right, rgba(244, 114, 182, 0.18), transparent 60%),
+    radial-gradient(circle at bottom left, rgba(251, 113, 133, 0.14), transparent 60%);
 }
 
 .mk-theme-nature .mk-modal__panel {
-  background-image: radial-gradient(circle at top left, rgba(34, 197, 94, 0.15), transparent 60%);
+  background-image: radial-gradient(circle at top left, rgba(34, 197, 94, 0.12), transparent 60%);
 }
 
 .mk-theme-futurist .mk-modal__panel {
-  background-image: linear-gradient(135deg, rgba(14, 165, 233, 0.1), transparent 55%);
-}
-
-.mk-theme-futurist .mk-modal__button {
-  border-radius: 999px;
+  background-image: linear-gradient(140deg, rgba(59, 130, 246, 0.08), transparent 55%);
 }
 
 .mk-theme-gothic .mk-modal__panel {
-  background-image: linear-gradient(180deg, rgba(192, 132, 252, 0.12), transparent 60%);
+  background-image:
+    radial-gradient(circle at top right, rgba(192, 132, 252, 0.18), transparent 60%),
+    radial-gradient(circle at bottom left, rgba(168, 85, 247, 0.14), transparent 60%);
 }
 
 .mk-theme-signal .mk-modal__panel {
@@ -516,60 +526,4 @@
   background-image:
     radial-gradient(circle at top right, rgba(100, 210, 255, 0.18), transparent 60%),
     radial-gradient(circle at bottom left, rgba(191, 90, 242, 0.16), transparent 60%);
-}
-
-.mk-modal--confirm .mk-modal__button--confirm {
-  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.25);
-}
-
-.mk-modal--confirm[data-variant="destructive"] .mk-modal__button--confirm {
-  background: var(--mk-danger-strong);
-  color: #ffffff;
-  box-shadow: 0 12px 24px rgba(239, 68, 68, 0.35);
-}
-
-.mk-modal--confirm[data-variant="approve"] .mk-modal__button--confirm {
-  background: var(--mk-success);
-  color: #ffffff;
-  box-shadow: 0 12px 24px rgba(34, 197, 94, 0.35);
-}
-
-.mk-modal--confirm[data-variant="destructive"] .mk-modal__panel {
-  border-color: var(--mk-danger-strong);
-  box-shadow: var(--mk-shadow), inset 0 4px 0 var(--mk-danger-strong);
-}
-
-.mk-modal--confirm[data-variant="approve"] .mk-modal__panel {
-  border-color: var(--mk-success);
-  box-shadow: var(--mk-shadow), inset 0 4px 0 var(--mk-success);
-}
-
-.mk-modal--confirm[data-variant="destructive"] .mk-modal__title {
-  color: var(--mk-danger-strong);
-}
-
-.mk-modal--confirm[data-variant="approve"] .mk-modal__title {
-  color: var(--mk-success);
-}
-
-.mk-modal--confirm[data-variant="info"] .mk-modal__button--confirm {
-  background: var(--mk-info);
-  box-shadow: 0 10px 20px rgba(56, 189, 248, 0.25);
-}
-
-.mk-modal--confirm[data-variant="destructive"] .mk-modal__icon {
-  border-color: var(--mk-danger-strong);
-  background: color-mix(in srgb, var(--mk-danger-strong), transparent 75%);
-  color: var(--mk-danger-strong);
-}
-
-.mk-modal--confirm[data-variant="approve"] .mk-modal__icon {
-  border-color: var(--mk-success);
-  background: color-mix(in srgb, var(--mk-success), transparent 75%);
-  color: var(--mk-success);
-}
-
-.mk-modal--confirm[data-variant="info"] .mk-modal__icon {
-  border-color: color-mix(in srgb, var(--mk-info), transparent 50%);
-  background: color-mix(in srgb, var(--mk-info), transparent 80%);
 }

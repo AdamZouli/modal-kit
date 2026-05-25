@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap");
+
 :root {
   --vp-c-brand-1: #ff2d55;
   --vp-c-brand-2: #0a84ff;
@@ -29,8 +31,6 @@
   --mk-accent-2: #64d2ff;
   --mk-accent-3: #bf5af2;
 }
-
-@import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap");
 
 body {
   background-color: var(--mk-bg);
@@ -135,12 +135,12 @@ body {
 }
 
 .vp-doc .mk-button {
-  color: #111111;
+  color: #000000;
   text-decoration: none;
 }
 
 .dark .vp-doc .mk-button {
-  color: #0a0a0a;
+  color: #ffffff;
 }
 
 .mk-button-ghost {
@@ -167,6 +167,12 @@ body {
 
 .VPNavBar {
   border-bottom: 3px solid var(--mk-border);
+}
+
+.VPNavBar .container,
+.VPNavBar .content {
+  max-width: none;
+  width: 100%;
 }
 
 .VPNavBarMenuLink,

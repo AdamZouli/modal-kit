@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Modal Kit Theme Gallery</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "https://esm.sh/lit@3.2.0",
+          "lit/directives/ref.js": "https://esm.sh/lit@3.2.0/directives/ref.js",
+          "@modal-kit/core": "../lib/core/index.js",
+          "@modal-kit/ui": "../lib/ui/index.js"
+        }
+      }
+    </script>
+    <style>
+      :root {
+        color-scheme: dark;
+        --mk-bg: #0b0b0b;
+        --mk-text: #f5f5f5;
+        --mk-card: #111111;
+        --mk-border: #f5f5f5;
+        --mk-shadow: #ff2d55;
+        --mk-accent-1: #ff2d55;
+        --mk-accent-2: #0a84ff;
+        --mk-accent-3: #30d158;
+        --mk-grid: rgba(245, 245, 245, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Space Mono", "IBM Plex Mono", "Courier New", Courier, monospace;
+        margin: 0;
+        min-height: 100vh;
+        font-size: 15px;
+        overflow-x: hidden;
+        background-color: var(--mk-bg);
+        background-image:
+          linear-gradient(115deg, rgba(255, 45, 85, 0.2), transparent 40%),
+          linear-gradient(220deg, rgba(10, 132, 255, 0.18), transparent 45%),
+          linear-gradient(320deg, rgba(48, 209, 88, 0.2), transparent 50%),
+          linear-gradient(var(--mk-grid) 1px, transparent 1px),
+          linear-gradient(90deg, var(--mk-grid) 1px, transparent 1px);
+        background-size: 100% 100%, 100% 100%, 100% 100%, 22px 22px, 22px 22px;
+        color: var(--mk-text);
+      }
+
+      .gallery {
+        display: grid;
+        gap: 24px;
+        padding: 28px 20px 44px;
+        max-width: 1240px;
+        margin: 0 auto;
+      }
+
+      .gallery__header {
+        display: grid;
+        gap: 12px;
+      }
+
+      .gallery__header h1 {
+        font-size: clamp(2rem, 3vw, 2.8rem);
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .gallery__header p {
+        margin: 0;
+        opacity: 0.75;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .gallery__toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 16px;
+        border-radius: 0;
+        border: 3px solid var(--mk-border);
+        background: var(--mk-card);
+        box-shadow: 8px 8px 0 var(--mk-accent-2);
+      }
+
+      .toolbar__input {
+        flex: 1;
+        min-width: 220px;
+        padding: 10px 14px;
+        border-radius: 0;
+        border: 3px solid var(--mk-border);
+        background: #0b0b0b;
+        color: var(--mk-text);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      .toolbar__meta {
+        font-size: 0.9rem;
+        opacity: 0.7;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .gallery__grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      @media (max-width: 1100px) {
+        .gallery__grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 720px) {
+        .gallery__grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .theme-card {
+        border-radius: 0;
+        padding: 18px;
+        background: var(--mk-card);
+        border: 3px solid var(--mk-border);
+        display: grid;
+        gap: 14px;
+        transition: transform 160ms ease, box-shadow 160ms ease;
+        box-shadow: 10px 10px 0 var(--mk-accent-1);
+      }
+
+      .theme-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 14px 14px 0 var(--mk-accent-3);
+      }
+
+      .theme-card__name {
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 0.8rem;
+        opacity: 0.9;
+      }
+
+      .theme-card__tags {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .theme-card__tag {
+        padding: 4px 10px;
+        border-radius: 0;
+        border: 2px solid var(--mk-border);
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        opacity: 0.8;
+      }
+
+      .theme-card__preview {
+        min-height: 190px;
+        display: grid;
+        align-items: center;
+        justify-items: center;
+        padding: 14px;
+        border-radius: 0;
+        border: 3px solid var(--mk-border);
+        background: #0b0b0b;
+      }
+
+      .theme-card__toggles {
+        display: grid;
+        gap: 10px;
+      }
+
+      .toggle-group {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .toggle-group__button {
+        border-radius: 0;
+        border: 2px solid var(--mk-border);
+        background: #0b0b0b;
+        color: inherit;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 700;
+      }
+
+      .toggle-group__button:hover {
+        background: var(--mk-accent-2);
+        color: #0a0a0a;
+      }
+
+      .preview-shell {
+        width: 100%;
+      }
+
+      .preview-shell .mk-modal__panel {
+        max-width: 100%;
+      }
+
+      .fade-in {
+        animation: fadeIn 500ms ease forwards;
+        opacity: 0;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="gallery">
+      <div class="gallery__header">
+        <h1>Modal Kit Themes</h1>
+        <p>Click any card to open a confirmation modal in that theme.</p>
+      </div>
+      <div class="gallery__toolbar">
+        <input
+          class="toolbar__input"
+          id="theme-filter"
+          type="search"
+          placeholder="Filter themes (e.g., cyber, mono, retro...)"
+        />
+        <div class="toolbar__meta" id="theme-count">18 themes</div>
+      </div>
+      <div class="gallery__grid" id="theme-grid"></div>
+    </div>
+
+    <modal-kit-confirm id="modal-brutalist" preset="delete" theme="brutalist"></modal-kit-confirm>
+    <modal-kit-confirm id="modal-retro" preset="approve" theme="retro"></modal-kit-confirm>
+    <modal-kit-confirm id="modal-swiss" preset="approve" theme="swiss"></modal-kit-confirm>
+    <modal-kit-confirm id="modal-cyber" preset="delete" theme="cyber"></modal-kit-confirm>
+    <modal-kit-confirm id="modal-paper" preset="approve" theme="paper"></modal-kit-confirm>
+    <modal-kit-confirm id="modal-glass" preset="approve" theme="glass"></modal-kit-confirm>
+    <modal-kit-confirm id="modal-y2k" preset="delete" theme="y2k"></modal-kit-confirm>
+    <modal-kit-confirm id="modal-mono" preset="delete" theme="mono"></modal-kit-confirm>
+    <modal-kit-confirm id="modal-bauhaus" preset="approve" theme="bauhaus"></modal-kit-confirm>
+    <modal-kit-confirm id="modal-noir" preset="delete" theme="noir"></modal-kit-confirm>
+    <modal-kit-confirm id="modal-pastel" preset="approve" theme="pastel"></modal-kit-confirm>
+    <modal-kit-confirm id="modal-terminal" preset="delete" theme="terminal"></modal-kit-confirm>
+    <modal-kit-confirm id="modal-candy" preset="approve" theme="candy"></modal-kit-confirm>
+    <modal-kit-confirm id="modal-nature" preset="approve" theme="nature"></modal-kit-confirm>
+    <modal-kit-confirm id="modal-futurist" preset="approve" theme="futurist"></modal-kit-confirm>
+    <modal-kit-confirm id="modal-gothic" preset="delete" theme="gothic"></modal-kit-confirm>
+    <modal-kit-confirm id="modal-signal" preset="delete" theme="signal"></modal-kit-confirm>
+    <modal-kit-confirm id="modal-aurora" preset="approve" theme="aurora"></modal-kit-confirm>
+
+    <script type="module">
+      import "../lib/web-components/index.js";
+
+      const themes = [
+        { id: "brutalist", label: "Brutalist", preset: "delete", tags: ["bold", "raw", "info"] },
+        { id: "retro", label: "Retro", preset: "approve", tags: ["retro", "analog", "info"] },
+        { id: "swiss", label: "Swiss", preset: "approve", tags: ["grid", "clean", "info"] },
+        { id: "cyber", label: "Cyber", preset: "delete", tags: ["neon", "tech", "info"] },
+        { id: "paper", label: "Paper", preset: "approve", tags: ["warm", "soft", "info"] },
+        { id: "glass", label: "Glass", preset: "approve", tags: ["frosted", "modern", "info"] },
+        { id: "y2k", label: "Y2K", preset: "delete", tags: ["chrome", "playful", "info"] },
+        { id: "mono", label: "Mono", preset: "delete", tags: ["mono", "strict", "info"] },
+        { id: "bauhaus", label: "Bauhaus", preset: "approve", tags: ["primary", "blocks", "info"] },
+        { id: "noir", label: "Noir", preset: "delete", tags: ["cinema", "shadow", "info"] },
+        { id: "pastel", label: "Pastel Soft", preset: "approve", tags: ["airy", "soft", "info"] },
+        { id: "terminal", label: "Terminal", preset: "delete", tags: ["green", "retro", "info"] },
+        { id: "candy", label: "Candy Pop", preset: "approve", tags: ["bright", "fun", "info"] },
+        { id: "nature", label: "Nature", preset: "approve", tags: ["earth", "calm", "info"] },
+        { id: "futurist", label: "Futurist White", preset: "approve", tags: ["clean", "bright", "info"] },
+        { id: "gothic", label: "Gothic", preset: "delete", tags: ["dark", "ornate", "info"] },
+        { id: "signal", label: "Signal", preset: "delete", tags: ["warning", "high-contrast", "info"] },
+        { id: "aurora", label: "Aurora", preset: "approve", tags: ["glow", "cool", "info"] }
+      ];
+
+      const grid = document.getElementById("theme-grid");
+      const filterInput = document.getElementById("theme-filter");
+      const countLabel = document.getElementById("theme-count");
+
+      const updateCount = () => {
+        const visibleCards = Array.from(grid.children).filter(
+          (card) => card.style.display !== "none"
+        );
+        countLabel.textContent = `${visibleCards.length} themes`;
+      };
+
+      themes.forEach((theme) => {
+        const card = document.createElement("div");
+        card.className = "theme-card fade-in";
+        card.dataset.theme = `${theme.label} ${theme.id} ${theme.tags.join(" ")}`.toLowerCase();
+        card.innerHTML = `
+          <div class="theme-card__name">${theme.label}</div>
+          <div class="theme-card__tags">
+            ${theme.tags.map((tag) => `<span class="theme-card__tag">${tag}</span>`).join("")}
+          </div>
+          <div class="theme-card__preview">
+            <div class="preview-shell">
+              <div class="mk-modal mk-theme-${theme.id} mk-modal--confirm" data-variant="${theme.preset === "delete" ? "destructive" : "approve"}">
+                <div class="mk-modal__panel">
+                  <div class="mk-modal__header">
+                    <div class="mk-modal__icon">${theme.preset === "delete" ? "!" : "+"}</div>
+                    <div class="mk-modal__text">
+                      <div class="mk-modal__title">${theme.preset === "delete" ? "Delete item?" : "Approve change?"}</div>
+                      <div class="mk-modal__description">Preview snapshot</div>
+                    </div>
+                  </div>
+                  <div class="mk-modal__actions">
+                    <button class="mk-modal__button mk-modal__button--cancel" type="button">Cancel</button>
+                    <button class="mk-modal__button mk-modal__button--confirm" type="button">
+                      ${theme.preset === "delete" ? "Delete" : "Approve"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="theme-card__toggles">
+            <div class="toggle-group">
+              <button class="toggle-group__button" type="button" data-mode="delete">Delete</button>
+              <button class="toggle-group__button" type="button" data-mode="approve">Approve</button>
+              <button class="toggle-group__button" type="button" data-mode="info">Info</button>
+            </div>
+          </div>
+        `;
+
+        const previewRoot = card.querySelector(".mk-modal");
+        const previewIcon = card.querySelector(".mk-modal__icon");
+        const previewTitle = card.querySelector(".mk-modal__title");
+        const previewDesc = card.querySelector(".mk-modal__description");
+        const previewConfirm = card.querySelector(".mk-modal__button--confirm");
+        const previewCancel = card.querySelector(".mk-modal__button--cancel");
+        const toggleButtons = card.querySelectorAll(".toggle-group__button");
+
+        const applyPreview = (mode) => {
+          if (!previewRoot || !previewIcon || !previewTitle || !previewDesc || !previewConfirm || !previewCancel) {
+            return;
+          }
+
+          if (mode === "delete") {
+            previewRoot.setAttribute("data-variant", "destructive");
+            previewIcon.textContent = "!";
+            previewTitle.textContent = "Delete item?";
+            previewDesc.textContent = "This action cannot be undone.";
+            previewConfirm.textContent = "Delete";
+            previewCancel.textContent = "Cancel";
+            return;
+          }
+
+          if (mode === "approve") {
+            previewRoot.setAttribute("data-variant", "approve");
+            previewIcon.textContent = "+";
+            previewTitle.textContent = "Approve change?";
+            previewDesc.textContent = "It will be applied immediately.";
+            previewConfirm.textContent = "Approve";
+            previewCancel.textContent = "Cancel";
+            return;
+          }
+
+          previewRoot.setAttribute("data-variant", "info");
+          previewIcon.textContent = "i";
+          previewTitle.textContent = "Heads up";
+          previewDesc.textContent = "Informational notice.";
+          previewConfirm.textContent = "Got it";
+          previewCancel.textContent = "Close";
+        };
+
+        applyPreview(theme.preset);
+        toggleButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const mode = button.dataset.mode;
+            const modal = document.getElementById(`modal-${theme.id}`);
+
+            if (!modal) {
+              return;
+            }
+
+            applyPreview(mode);
+
+            if (mode === "delete") {
+              modal.preset = "delete";
+              modal.title = "";
+              modal.description = "";
+              modal.details = "";
+              modal.confirmLabel = "";
+              modal.cancelLabel = "";
+              modal.icon = "";
+              modal.variant = "";
+            } else if (mode === "approve") {
+              modal.preset = "approve";
+              modal.title = "";
+              modal.description = "";
+              modal.details = "";
+              modal.confirmLabel = "";
+              modal.cancelLabel = "";
+              modal.icon = "";
+              modal.variant = "";
+            } else {
+              modal.preset = "";
+              modal.title = "Heads up";
+              modal.description = "This is an informational message.";
+              modal.details = "Nothing destructive will happen unless you confirm.";
+              modal.confirmLabel = "Got it";
+              modal.cancelLabel = "Close";
+              modal.icon = "i";
+              modal.variant = "info";
+            }
+
+            modal.open = true;
+          });
+        });
+
+        grid.appendChild(card);
+      });
+
+      updateCount();
+
+      filterInput.addEventListener("input", (event) => {
+        const term = event.target.value.trim().toLowerCase();
+        Array.from(grid.children).forEach((card) => {
+          const matches = !term || card.dataset.theme.includes(term);
+          card.style.display = matches ? "grid" : "none";
+        });
+        updateCount();
+      });
+    </script>
+  </body>
+</html>

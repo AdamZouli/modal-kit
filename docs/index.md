@@ -32,7 +32,7 @@ features:
   <div class="mk-card">
     <h3>Theme Gallery</h3>
     <p>Browse the full set of themes with info, approve, and destructive variants.</p>
-    <a class="mk-button" href="./themes/">Open the gallery</a>
+    <a class="mk-button" href="/examples/theme-gallery.html">Open the gallery</a>
   </div>
   <div class="mk-card">
     <h3>Core Behavior</h3>
