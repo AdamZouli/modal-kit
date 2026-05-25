@@ -29,6 +29,20 @@ features:
 <div class="mk-kicker">Modal Kit ships with a theme gallery so you can compare UI styles side by side.</div>
 
 <div class="mk-grid">
+  <div class="mk-card mk-install-card">
+    <h3>Install</h3>
+    <p>Core + UI with one adapter.</p>
+    <strong>React</strong>
+    <pre><code>npm install @modal-kit/core @modal-kit/ui
+npm install @modal-kit/react</code></pre>
+    <strong>Vue</strong>
+    <pre><code>npm install @modal-kit/core @modal-kit/ui
+npm install @modal-kit/vue</code></pre>
+    <strong>Web Components</strong>
+    <pre><code>npm install @modal-kit/core @modal-kit/ui
+npm install @modal-kit/web-components</code></pre>
+    <a class="mk-button mk-button-ghost" href="./getting-started/">Full install options</a>
+  </div>
   <div class="mk-card">
     <h3>Theme Gallery</h3>
     <p>Browse the full set of themes with info, approve, and destructive variants.</p>
