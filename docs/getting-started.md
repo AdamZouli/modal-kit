@@ -7,23 +7,23 @@
 
 ## Install
 
-```
-npm install
-```
-
-## Published Packages
-
 Core + UI:
 
 ```
 npm install @modal-kit/core @modal-kit/ui
 ```
 
-Adapters:
+Choose one adapter:
 
 ```
 npm install @modal-kit/react
+```
+
+```
 npm install @modal-kit/vue
+```
+
+```
 npm install @modal-kit/web-components
 ```
 

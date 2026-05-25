@@ -4,7 +4,7 @@ export default defineConfig({
   title: "Modal Kit",
   description: "Accessible modal engine with adapters and themes.",
   base: "/modal-kit/",
-  head: [["link", { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }]],
+  head: [["link", { rel: "icon", type: "image/svg+xml", href: "/modal-kit/favicon.svg" }]],
   themeConfig: {
     socialLinks: [{ icon: "github", link: "https://github.com/AdamZouli/modal-kit" }],
     nav: [
