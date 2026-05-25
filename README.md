@@ -1,6 +1,11 @@
 # modal-kit
 
 [![Deploy Docs](https://github.com/AdamZouli/modal-kit/actions/workflows/docs.yml/badge.svg)](https://github.com/AdamZouli/modal-kit/actions/workflows/docs.yml)
+[![npm core](https://img.shields.io/npm/v/@modal-kit/core?label=core)](https://www.npmjs.com/package/@modal-kit/core)
+[![npm ui](https://img.shields.io/npm/v/@modal-kit/ui?label=ui)](https://www.npmjs.com/package/@modal-kit/ui)
+[![npm react](https://img.shields.io/npm/v/@modal-kit/react?label=react)](https://www.npmjs.com/package/@modal-kit/react)
+[![npm vue](https://img.shields.io/npm/v/@modal-kit/vue?label=vue)](https://www.npmjs.com/package/@modal-kit/vue)
+[![npm web-components](https://img.shields.io/npm/v/@modal-kit/web-components?label=web-components)](https://www.npmjs.com/package/@modal-kit/web-components)
 
 Docs: https://adamzouli.github.io/modal-kit/
 
@@ -23,7 +28,23 @@ Modal Kit is a lightweight, accessible modal engine with adapters for React, Vue
 - Node.js 18+
 - npm 9+
 
-## Install
+## Install (npm)
+
+Core + UI:
+
+```
+npm install @modal-kit/core @modal-kit/ui
+```
+
+Adapters:
+
+```
+npm install @modal-kit/react
+npm install @modal-kit/vue
+npm install @modal-kit/web-components
+```
+
+## Install (local dev)
 
 For local development, install workspace dependencies:
 

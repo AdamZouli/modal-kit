@@ -11,6 +11,22 @@
 npm install
 ```
 
+## Published Packages
+
+Core + UI:
+
+```
+npm install @modal-kit/core @modal-kit/ui
+```
+
+Adapters:
+
+```
+npm install @modal-kit/react
+npm install @modal-kit/vue
+npm install @modal-kit/web-components
+```
+
 ## Build and Test
 
 ```
