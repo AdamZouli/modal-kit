@@ -4,6 +4,7 @@ import {
   inject,
   onBeforeUnmount,
   onMounted,
+  onUpdated,
   ref,
   type App,
   type PropType,
@@ -80,12 +81,17 @@ export const useModalController = (id: string, options: UseModalControllerOption
 
   let controller: ReturnType<typeof createModalController> | null = null;
 
-  onMounted(() => {
+  const ensureController = () => {
+    if (controller) {
+      return;
+    }
+
     const container = resolveElement(options.container);
     const overlay = resolveElement(options.overlay);
     if (!container) {
       return;
     }
+
     controller = createModalController(id, manager, {
       container,
       overlay,
@@ -97,6 +103,14 @@ export const useModalController = (id: string, options: UseModalControllerOption
       initialFocus: options.initialFocus,
       restoreFocusTarget: options.restoreFocusTarget
     });
+  };
+
+  onMounted(() => {
+    ensureController();
+  });
+
+  onUpdated(() => {
+    ensureController();
   });
 
   onBeforeUnmount(() => {

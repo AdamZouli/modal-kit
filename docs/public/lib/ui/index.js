@@ -13,7 +13,11 @@ var modalClassNames = {
   button: "mk-modal__button",
   confirmButton: "mk-modal__button--confirm",
   cancelButton: "mk-modal__button--cancel",
-  confirmVariant: "mk-modal--confirm"
+  confirmVariant: "mk-modal--confirm",
+  drawerVariant: "mk-modal--drawer",
+  popoverVariant: "mk-modal--popover",
+  commandVariant: "mk-modal--command",
+  toastVariant: "mk-modal--toast"
 };
 var themeClassNames = {
   brutalist: "mk-theme-brutalist",
