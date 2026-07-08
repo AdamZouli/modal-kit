@@ -132,7 +132,7 @@ export interface ConfirmModalProps extends ModalBehaviorOptions {
   preset?: ConfirmPreset;
   icon?: string;
   theme?: ModalTheme;
-  onConfirm?: () => void;
+  onConfirm?: () => void | Promise<void>;
   onCancel?: () => void;
 }
 
@@ -154,7 +154,7 @@ export const ConfirmModal = defineComponent<ConfirmModalProps>({
     trapFocus: { type: Boolean, default: undefined },
     lockScroll: { type: Boolean, default: undefined },
     restoreFocus: { type: Boolean, default: undefined },
-    onConfirm: { type: Function as PropType<() => void>, default: undefined },
+    onConfirm: { type: Function as PropType<() => void | Promise<void>>, default: undefined },
     onCancel: { type: Function as PropType<() => void>, default: undefined }
   },
   setup(props) {
@@ -162,11 +162,18 @@ export const ConfirmModal = defineComponent<ConfirmModalProps>({
     const overlayRef = ref<HTMLDivElement | null>(null);
     const panelRef = ref<HTMLDivElement | null>(null);
     const confirmButtonRef = ref<HTMLButtonElement | null>(null);
+    const status = ref<"idle" | "loading" | "error">("idle");
+    const asyncError = ref<string | null>(null);
+    const modalId = `mk-modal-${Math.random().toString(36).slice(2, 9)}`;
+    const titleId = `${modalId}-title`;
+    const descId = `${modalId}-desc`;
 
     useModalController(props.id, {
       overlay: () => overlayRef.value,
       container: () => panelRef.value,
       initialFocus: () => confirmButtonRef.value,
+      labelledBy: titleId,
+      describedBy: descId,
       closeOnEsc: props.closeOnEsc,
       closeOnOverlay: props.closeOnOverlay,
       trapFocus: props.trapFocus,
@@ -199,11 +206,32 @@ export const ConfirmModal = defineComponent<ConfirmModalProps>({
     };
 
     const handleConfirm = () => {
-      props.onConfirm?.();
-      close();
+      if (!props.onConfirm) {
+        close();
+        return;
+      }
+
+      const result = props.onConfirm();
+
+      if (result instanceof Promise) {
+        status.value = "loading";
+        asyncError.value = null;
+        result.then(() => {
+          status.value = "idle";
+          close();
+        }).catch((err: unknown) => {
+          status.value = "error";
+          asyncError.value = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+        });
+      } else {
+        close();
+      }
     };
 
     const handleCancel = () => {
+      if (status.value === "loading") {
+        return;
+      }
       props.onCancel?.();
       close();
     };
@@ -226,7 +254,8 @@ export const ConfirmModal = defineComponent<ConfirmModalProps>({
         "div",
         {
           class: `${modalClassNames.root} ${themeClassNames[resolvedTheme]} ${modalClassNames.confirmVariant}`,
-          "data-variant": resolvedVariant
+          "data-variant": resolvedVariant,
+          "data-state": "open"
         },
         h(
           "div",
@@ -236,27 +265,33 @@ export const ConfirmModal = defineComponent<ConfirmModalProps>({
             {
               class: modalClassNames.panel,
               ref: panelRef,
+              "aria-labelledby": titleId,
+              "aria-describedby": resolvedDescription ? descId : undefined
             },
             [
               h("div", { class: modalClassNames.header }, [
-                h("div", { class: modalClassNames.icon }, resolvedIcon),
+                h("div", { class: modalClassNames.icon, "aria-hidden": "true" }, resolvedIcon),
                 h("div", { class: modalClassNames.text }, [
-                  h("div", { class: modalClassNames.title }, resolvedTitle),
+                  h("div", { class: modalClassNames.title, id: titleId }, resolvedTitle),
                   resolvedDescription
-                    ? h("div", { class: modalClassNames.description }, resolvedDescription)
+                    ? h("div", { class: modalClassNames.description, id: descId }, resolvedDescription)
                     : null,
                   props.details
                     ? h("div", { class: modalClassNames.details }, props.details)
                     : null
                 ])
               ]),
+              asyncError.value
+                ? h("div", { class: modalClassNames.asyncError, role: "alert" }, asyncError.value)
+                : null,
               h("div", { class: modalClassNames.actions }, [
                 h(
                   "button",
                   {
                     class: `${modalClassNames.button} ${modalClassNames.cancelButton}`,
                     type: "button",
-                    onClick: handleCancel
+                    onClick: handleCancel,
+                    disabled: status.value === "loading"
                   },
                   resolvedCancel
                 ),
@@ -266,9 +301,11 @@ export const ConfirmModal = defineComponent<ConfirmModalProps>({
                     class: `${modalClassNames.button} ${modalClassNames.confirmButton}`,
                     type: "button",
                     onClick: handleConfirm,
-                    ref: confirmButtonRef
+                    ref: confirmButtonRef,
+                    disabled: status.value === "loading",
+                    "aria-busy": status.value === "loading"
                   },
-                  resolvedConfirm
+                  status.value === "loading" ? "…" : resolvedConfirm
                 )
               ])
             ]
