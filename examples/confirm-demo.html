@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Modal Kit Confirm Demo</title>
+    <link rel="stylesheet" href="../packages/ui/styles.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "https://esm.sh/lit@3.2.0",
+          "lit/directives/ref.js": "https://esm.sh/lit@3.2.0/directives/ref.js",
+          "@modal-kit/core": "../packages/core/dist/index.js",
+          "@modal-kit/ui": "../packages/ui/dist/index.js"
+        }
+      }
+    </script>
+    <style>
+      body {
+        font-family: "IBM Plex Sans", system-ui, sans-serif;
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0b1220 0%, #0f172a 50%, #020617 100%);
+        color: #f8fafc;
+      }
+
+      .demo {
+        display: grid;
+        gap: 20px;
+        padding: 32px;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .demo__actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .demo__button {
+        padding: 12px 18px;
+        border-radius: 999px;
+        border: 1px solid #334155;
+        background: #0f172a;
+        color: #e2e8f0;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .demo__button--neo {
+        background: #e2e8f0;
+        color: #0f172a;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo">
+      <h1>Modal Kit Confirm Demo</h1>
+      <p>Click a button to open each themed confirmation modal.</p>
+      <div class="demo__actions">
+        <button class="demo__button" id="open-delete">Open Brutalist Delete</button>
+        <button class="demo__button" id="open-approve">Open Brutalist Approve</button>
+        <button class="demo__button demo__button--neo" id="open-delete-neo">Open Retro Delete</button>
+        <button class="demo__button demo__button--neo" id="open-approve-neo">Open Retro Approve</button>
+        <button class="demo__button" id="open-delete-swiss">Open Swiss Delete</button>
+        <button class="demo__button" id="open-approve-swiss">Open Swiss Approve</button>
+        <button class="demo__button" id="open-delete-cyber">Open Cyber Delete</button>
+        <button class="demo__button" id="open-approve-cyber">Open Cyber Approve</button>
+        <button class="demo__button demo__button--neo" id="open-delete-paper">Open Paper Delete</button>
+        <button class="demo__button demo__button--neo" id="open-approve-paper">Open Paper Approve</button>
+        <button class="demo__button" id="open-delete-glass">Open Glass Delete</button>
+        <button class="demo__button" id="open-approve-glass">Open Glass Approve</button>
+        <button class="demo__button demo__button--neo" id="open-delete-y2k">Open Y2K Delete</button>
+        <button class="demo__button demo__button--neo" id="open-approve-y2k">Open Y2K Approve</button>
+        <button class="demo__button" id="open-delete-mono">Open Mono Delete</button>
+        <button class="demo__button" id="open-approve-mono">Open Mono Approve</button>
+      </div>
+    </div>
+
+    <modal-kit-confirm
+      id="confirm-delete"
+      preset="delete"
+      theme="brutalist"
+      details="You will lose access immediately and your data will be archived."
+    ></modal-kit-confirm>
+
+    <modal-kit-confirm
+      id="confirm-approve"
+      preset="approve"
+      theme="brutalist"
+      details="We will notify the requester as soon as it is approved."
+    ></modal-kit-confirm>
+
+    <modal-kit-confirm
+      id="confirm-delete-neo"
+      preset="delete"
+      theme="retro"
+      details="You can restore this item from the archive within 30 days."
+    ></modal-kit-confirm>
+
+    <modal-kit-confirm
+      id="confirm-approve-neo"
+      preset="approve"
+      theme="retro"
+      details="The update will go live right away."
+    ></modal-kit-confirm>
+
+    <modal-kit-confirm
+      id="confirm-delete-swiss"
+      preset="delete"
+      theme="swiss"
+      details="This will remove the item from all collections."
+    ></modal-kit-confirm>
+
+    <modal-kit-confirm
+      id="confirm-approve-swiss"
+      preset="approve"
+      theme="swiss"
+      details="The change will be published for the team."
+    ></modal-kit-confirm>
+
+    <modal-kit-confirm
+      id="confirm-delete-cyber"
+      preset="delete"
+      theme="cyber"
+      details="This action is irreversible in the next 24h cycle."
+    ></modal-kit-confirm>
+
+    <modal-kit-confirm
+      id="confirm-approve-cyber"
+      preset="approve"
+      theme="cyber"
+      details="Autodeploy will start in the next minute."
+    ></modal-kit-confirm>
+
+    <modal-kit-confirm
+      id="confirm-delete-paper"
+      preset="delete"
+      theme="paper"
+      details="A backup will be kept for 14 days."
+    ></modal-kit-confirm>
+
+    <modal-kit-confirm
+      id="confirm-approve-paper"
+      preset="approve"
+      theme="paper"
+      details="We will send a notification to the requester."
+    ></modal-kit-confirm>
+
+    <modal-kit-confirm
+      id="confirm-delete-glass"
+      preset="delete"
+      theme="glass"
+      details="Your dashboard will update in real time."
+    ></modal-kit-confirm>
+
+    <modal-kit-confirm
+      id="confirm-approve-glass"
+      preset="approve"
+      theme="glass"
+      details="A changelog entry will be created automatically."
+    ></modal-kit-confirm>
+
+    <modal-kit-confirm
+      id="confirm-delete-y2k"
+      preset="delete"
+      theme="y2k"
+      details="This cannot be undone, but you can export data now."
+    ></modal-kit-confirm>
+
+    <modal-kit-confirm
+      id="confirm-approve-y2k"
+      preset="approve"
+      theme="y2k"
+      details="The new design will be live for all users."
+    ></modal-kit-confirm>
+
+    <modal-kit-confirm
+      id="confirm-delete-mono"
+      preset="delete"
+      theme="mono"
+      details="This removes the item permanently from the registry."
+    ></modal-kit-confirm>
+
+    <modal-kit-confirm
+      id="confirm-approve-mono"
+      preset="approve"
+      theme="mono"
+      details="The policy change is applied instantly."
+    ></modal-kit-confirm>
+
+    <script type="module">
+      import "../packages/web-components/dist/index.js";
+
+      const deleteModal = document.getElementById("confirm-delete");
+      const approveModal = document.getElementById("confirm-approve");
+      const deleteModalNeo = document.getElementById("confirm-delete-neo");
+      const approveModalNeo = document.getElementById("confirm-approve-neo");
+      const deleteModalSwiss = document.getElementById("confirm-delete-swiss");
+      const approveModalSwiss = document.getElementById("confirm-approve-swiss");
+      const deleteModalCyber = document.getElementById("confirm-delete-cyber");
+      const approveModalCyber = document.getElementById("confirm-approve-cyber");
+      const deleteModalPaper = document.getElementById("confirm-delete-paper");
+      const approveModalPaper = document.getElementById("confirm-approve-paper");
+      const deleteModalGlass = document.getElementById("confirm-delete-glass");
+      const approveModalGlass = document.getElementById("confirm-approve-glass");
+      const deleteModalY2k = document.getElementById("confirm-delete-y2k");
+      const approveModalY2k = document.getElementById("confirm-approve-y2k");
+      const deleteModalMono = document.getElementById("confirm-delete-mono");
+      const approveModalMono = document.getElementById("confirm-approve-mono");
+
+      document.getElementById("open-delete").addEventListener("click", () => {
+        deleteModal.open = true;
+      });
+      document.getElementById("open-approve").addEventListener("click", () => {
+        approveModal.open = true;
+      });
+      document.getElementById("open-delete-neo").addEventListener("click", () => {
+        deleteModalNeo.open = true;
+      });
+      document.getElementById("open-approve-neo").addEventListener("click", () => {
+        approveModalNeo.open = true;
+      });
+      document.getElementById("open-delete-swiss").addEventListener("click", () => {
+        deleteModalSwiss.open = true;
+      });
+      document.getElementById("open-approve-swiss").addEventListener("click", () => {
+        approveModalSwiss.open = true;
+      });
+      document.getElementById("open-delete-cyber").addEventListener("click", () => {
+        deleteModalCyber.open = true;
+      });
+      document.getElementById("open-approve-cyber").addEventListener("click", () => {
+        approveModalCyber.open = true;
+      });
+      document.getElementById("open-delete-paper").addEventListener("click", () => {
+        deleteModalPaper.open = true;
+      });
+      document.getElementById("open-approve-paper").addEventListener("click", () => {
+        approveModalPaper.open = true;
+      });
+      document.getElementById("open-delete-glass").addEventListener("click", () => {
+        deleteModalGlass.open = true;
+      });
+      document.getElementById("open-approve-glass").addEventListener("click", () => {
+        approveModalGlass.open = true;
+      });
+      document.getElementById("open-delete-y2k").addEventListener("click", () => {
+        deleteModalY2k.open = true;
+      });
+      document.getElementById("open-approve-y2k").addEventListener("click", () => {
+        approveModalY2k.open = true;
+      });
+      document.getElementById("open-delete-mono").addEventListener("click", () => {
+        deleteModalMono.open = true;
+      });
+      document.getElementById("open-approve-mono").addEventListener("click", () => {
+        approveModalMono.open = true;
+      });
+
+      for (const modal of [
+        deleteModal,
+        approveModal,
+        deleteModalNeo,
+        approveModalNeo,
+        deleteModalSwiss,
+        approveModalSwiss,
+        deleteModalCyber,
+        approveModalCyber,
+        deleteModalPaper,
+        approveModalPaper,
+        deleteModalGlass,
+        approveModalGlass,
+        deleteModalY2k,
+        approveModalY2k,
+        deleteModalMono,
+        approveModalMono
+      ]) {
+        modal.addEventListener("confirm", () => {
+          console.log("Confirmed", modal.id);
+        });
+        modal.addEventListener("cancel", () => {
+          console.log("Cancelled", modal.id);
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -2,8 +2,10 @@ import React, {
   createContext,
   useContext,
   useEffect,
+  useId,
   useMemo,
   useRef,
+  useState,
   useSyncExternalStore
 } from "react";
 import {
@@ -120,7 +122,7 @@ export interface ConfirmModalProps extends ModalBehaviorOptions {
   preset?: ConfirmPreset;
   icon?: string;
   theme?: ModalTheme;
-  onConfirm?: () => void;
+  onConfirm?: () => void | Promise<void>;
   onCancel?: () => void;
 }
 
@@ -147,11 +149,17 @@ export const ConfirmModal = ({
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const confirmButtonRef = useRef<HTMLButtonElement | null>(null);
+  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [asyncError, setAsyncError] = useState<string | null>(null);
+  const titleId = useId();
+  const descriptionId = useId();
 
   useModalController(id, {
     overlay: () => overlayRef.current,
     container: () => panelRef.current,
     initialFocus: () => confirmButtonRef.current,
+    labelledBy: titleId,
+    describedBy: descriptionId,
     closeOnEsc,
     closeOnOverlay,
     trapFocus,
@@ -192,11 +200,32 @@ export const ConfirmModal = ({
   const resolvedIcon = icon ?? presetDefaults?.icon ?? "?";
 
   const handleConfirm = () => {
-    onConfirm?.();
-    close();
+    if (!onConfirm) {
+      close();
+      return;
+    }
+
+    const result = onConfirm();
+
+    if (result instanceof Promise) {
+      setStatus("loading");
+      setAsyncError(null);
+      result.then(() => {
+        setStatus("idle");
+        close();
+      }).catch((err: unknown) => {
+        setStatus("error");
+        setAsyncError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      });
+    } else {
+      close();
+    }
   };
 
   const handleCancel = () => {
+    if (status === "loading") {
+      return;
+    }
     onCancel?.();
     close();
   };
@@ -205,27 +234,34 @@ export const ConfirmModal = ({
     <div
       className={`${modalClassNames.root} ${themeClassNames[theme]} ${modalClassNames.confirmVariant}`}
       data-variant={resolvedVariant}
+      data-state="open"
     >
       <div className={modalClassNames.overlay} ref={overlayRef}>
         <div
           className={modalClassNames.panel}
           ref={panelRef}
+          aria-labelledby={titleId}
+          aria-describedby={resolvedDescription ? descriptionId : undefined}
         >
           <div className={modalClassNames.header}>
-            <div className={modalClassNames.icon}>{resolvedIcon}</div>
+            <div className={modalClassNames.icon} aria-hidden="true">{resolvedIcon}</div>
             <div className={modalClassNames.text}>
-              <div className={modalClassNames.title}>{resolvedTitle}</div>
+              <div className={modalClassNames.title} id={titleId}>{resolvedTitle}</div>
               {resolvedDescription ? (
-                <div className={modalClassNames.description}>{resolvedDescription}</div>
+                <div className={modalClassNames.description} id={descriptionId}>{resolvedDescription}</div>
               ) : null}
               {details ? <div className={modalClassNames.details}>{details}</div> : null}
             </div>
           </div>
+          {asyncError ? (
+            <div className={modalClassNames.asyncError} role="alert">{asyncError}</div>
+          ) : null}
           <div className={modalClassNames.actions}>
             <button
               className={`${modalClassNames.button} ${modalClassNames.cancelButton}`}
               type="button"
               onClick={handleCancel}
+              disabled={status === "loading"}
             >
               {resolvedCancel}
             </button>
@@ -234,8 +270,10 @@ export const ConfirmModal = ({
               type="button"
               onClick={handleConfirm}
               ref={confirmButtonRef}
+              disabled={status === "loading"}
+              aria-busy={status === "loading"}
             >
-              {resolvedConfirm}
+              {status === "loading" ? "…" : resolvedConfirm}
             </button>
           </div>
         </div>

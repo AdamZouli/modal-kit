@@ -12,6 +12,8 @@
   --mk-danger: #ef4444;
   --mk-danger-strong: #ef4444;
   --mk-success: #22c55e;
+  --mk-duration: 220ms;
+  --mk-easing: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .mk-theme-brutalist {
@@ -269,6 +271,31 @@
 .mk-modal {
   font-family: var(--mk-font-family);
   color: var(--mk-surface-contrast);
+}
+
+@keyframes mk-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes mk-panel-in {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
+.mk-modal[data-state="open"] .mk-modal__overlay {
+  animation: mk-overlay-in var(--mk-duration) var(--mk-easing) both;
+}
+
+.mk-modal[data-state="open"] .mk-modal__panel {
+  animation: mk-panel-in var(--mk-duration) var(--mk-easing) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mk-modal__overlay,
+  .mk-modal__panel {
+    animation: none;
+  }
 }
 
 .mk-modal__overlay {

@@ -6,6 +6,8 @@ export interface ModalBehaviorOptions {
   trapFocus?: boolean;
   lockScroll?: boolean;
   restoreFocus?: boolean;
+  /** Auto-close the modal after this many milliseconds. 0 disables auto-close. */
+  closeAfterMs?: number;
 }
 
 export interface ModalState {
@@ -79,6 +81,10 @@ export interface ModalDomOptions extends ModalBehaviorOptions {
   overlay?: HTMLElement | null;
   initialFocus?: HTMLElement | (() => HTMLElement | null) | null;
   restoreFocusTarget?: HTMLElement | (() => HTMLElement | null) | null;
+  /** Element id to use for aria-labelledby on the dialog container. */
+  labelledBy?: string;
+  /** Element id to use for aria-describedby on the dialog container. */
+  describedBy?: string;
 }
 
 export interface ModalController {
@@ -93,7 +99,8 @@ const defaultBehavior: Required<ModalBehaviorOptions> = {
   closeOnOverlay: true,
   trapFocus: true,
   lockScroll: true,
-  restoreFocus: true
+  restoreFocus: true,
+  closeAfterMs: 0
 };
 
 const focusableSelector =
@@ -176,6 +183,8 @@ export const createModalController = (
   let addedTabIndex = false;
 
   const applyCloseEffects = () => {
+    options.container.setAttribute("data-state", "closed");
+
     cleanupFns.forEach((cleanup) => cleanup());
     cleanupFns = [];
 
@@ -250,9 +259,16 @@ export const createModalController = (
     }
 
     lastFocused = (document?.activeElement as HTMLElement | null) ?? null;
+    options.container.setAttribute("data-state", "open");
     options.container.setAttribute("aria-modal", "true");
     if (!options.container.hasAttribute("role")) {
       options.container.setAttribute("role", "dialog");
+    }
+    if (options.labelledBy) {
+      options.container.setAttribute("aria-labelledby", options.labelledBy);
+    }
+    if (options.describedBy) {
+      options.container.setAttribute("aria-describedby", options.describedBy);
     }
 
     const focusTarget = resolveElement(options.initialFocus);
@@ -273,6 +289,11 @@ export const createModalController = (
     if (options.overlay) {
       options.overlay.addEventListener("click", handleOverlayClick);
       cleanupFns.push(() => options.overlay?.removeEventListener("click", handleOverlayClick));
+    }
+
+    if (behavior.closeAfterMs > 0) {
+      const timerId = setTimeout(() => manager.close(id), behavior.closeAfterMs);
+      cleanupFns.push(() => clearTimeout(timerId));
     }
   };
 
