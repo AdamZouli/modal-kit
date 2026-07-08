@@ -364,6 +364,15 @@
   opacity: 0.75;
 }
 
+.mk-modal__async-error {
+  font-size: 0.875rem;
+  color: var(--mk-danger);
+  padding: 8px 10px;
+  border: 1px solid var(--mk-danger);
+  border-radius: 6px;
+  line-height: 1.4;
+}
+
 .mk-modal__actions {
   display: flex;
   gap: var(--mk-action-gap);

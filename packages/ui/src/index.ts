@@ -8,6 +8,7 @@ export const modalClassNames = {
   title: "mk-modal__title",
   description: "mk-modal__description",
   details: "mk-modal__details",
+  asyncError: "mk-modal__async-error",
   actions: "mk-modal__actions",
   button: "mk-modal__button",
   confirmButton: "mk-modal__button--confirm",
