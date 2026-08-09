@@ -3,6 +3,7 @@ import React, {
   useContext,
   useEffect,
   useId,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -77,6 +78,8 @@ export interface UseModalControllerOptions extends ModalBehaviorOptions {
   restoreFocusTarget?: HTMLElement | (() => HTMLElement | null) | null;
   labelledBy?: string;
   describedBy?: string;
+  /** When false, skip wiring until the modal DOM is mounted. */
+  ready?: boolean;
 }
 
 const resolveElement = (target?: ElementOrGetter): HTMLElement | null => {
@@ -88,11 +91,18 @@ const resolveElement = (target?: ElementOrGetter): HTMLElement | null => {
 
 export const useModalController = (id: string, options: UseModalControllerOptions) => {
   const manager = useManager();
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
 
-  useEffect(() => {
-    const container = resolveElement(options.container);
-    const overlay = resolveElement(options.overlay);
-    const root = resolveElement(options.root);
+  useLayoutEffect(() => {
+    if (options.ready === false) {
+      return;
+    }
+
+    const opts = optionsRef.current;
+    const container = resolveElement(opts.container);
+    const overlay = resolveElement(opts.overlay);
+    const root = resolveElement(opts.root);
     if (!container) {
       return;
     }
@@ -101,33 +111,30 @@ export const useModalController = (id: string, options: UseModalControllerOption
       container,
       overlay,
       root,
-      closeOnEsc: options.closeOnEsc,
-      closeOnOverlay: options.closeOnOverlay,
-      trapFocus: options.trapFocus,
-      lockScroll: options.lockScroll,
-      restoreFocus: options.restoreFocus,
-      closeAfterMs: options.closeAfterMs,
-      initialFocus: options.initialFocus,
-      restoreFocusTarget: options.restoreFocusTarget,
-      labelledBy: options.labelledBy,
-      describedBy: options.describedBy
+      closeOnEsc: opts.closeOnEsc,
+      closeOnOverlay: opts.closeOnOverlay,
+      trapFocus: opts.trapFocus,
+      lockScroll: opts.lockScroll,
+      restoreFocus: opts.restoreFocus,
+      closeAfterMs: opts.closeAfterMs,
+      initialFocus: () => resolveElement(optionsRef.current.initialFocus as ElementOrGetter),
+      restoreFocusTarget: () =>
+        resolveElement(optionsRef.current.restoreFocusTarget as ElementOrGetter),
+      labelledBy: opts.labelledBy,
+      describedBy: opts.describedBy
     });
 
     return () => controller.destroy();
   }, [
     id,
     manager,
-    options.container,
-    options.overlay,
-    options.root,
+    options.ready,
     options.closeOnEsc,
     options.closeOnOverlay,
     options.trapFocus,
     options.lockScroll,
     options.restoreFocus,
     options.closeAfterMs,
-    options.initialFocus,
-    options.restoreFocusTarget,
     options.labelledBy,
     options.describedBy
   ]);
@@ -214,6 +221,7 @@ export const Modal = ({
   const prevOpen = useRef(isOpen);
 
   useModalController(id, {
+    ready: mounted,
     overlay: () => overlayRef.current,
     container: () => panelRef.current,
     root: () => rootRef.current,
@@ -337,6 +345,7 @@ export const ConfirmModal = ({
   const prevOpen = useRef(isOpen);
 
   useModalController(id, {
+    ready: mounted,
     overlay: () => overlayRef.current,
     container: () => panelRef.current,
     root: () => rootRef.current,
@@ -465,6 +474,8 @@ export const ConfirmModal = ({
           <div
             className={modalClassNames.panel}
             ref={panelRef}
+            role="dialog"
+            aria-modal="true"
             aria-labelledby={titleId}
             aria-describedby={resolvedDescription ? descriptionId : undefined}
           >
@@ -584,6 +595,7 @@ export const MultiStepConfirm = ({
   const descriptionId = useId();
 
   useModalController(id, {
+    ready: mounted,
     overlay: () => overlayRef.current,
     container: () => panelRef.current,
     root: () => rootRef.current,
@@ -687,6 +699,8 @@ export const MultiStepConfirm = ({
           <div
             className={modalClassNames.panel}
             ref={panelRef}
+            role="dialog"
+            aria-modal="true"
             aria-labelledby={titleId}
             aria-describedby={descriptionId}
           >

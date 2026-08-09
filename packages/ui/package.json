@@ -1,12 +1,15 @@
 {
   "name": "@modal-kit/ui",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Adam Zouli Dev",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "style": "styles.css",
+  "sideEffects": [
+    "./styles.css"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

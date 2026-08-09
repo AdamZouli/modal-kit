@@ -227,8 +227,12 @@ export const createModalController = (
   options: ModalDomOptions
 ): ModalController => {
   const behavior: Required<ModalBehaviorOptions> = {
-    ...defaultBehavior,
-    ...options
+    closeOnEsc: options.closeOnEsc ?? defaultBehavior.closeOnEsc,
+    closeOnOverlay: options.closeOnOverlay ?? defaultBehavior.closeOnOverlay,
+    trapFocus: options.trapFocus ?? defaultBehavior.trapFocus,
+    lockScroll: options.lockScroll ?? defaultBehavior.lockScroll,
+    restoreFocus: options.restoreFocus ?? defaultBehavior.restoreFocus,
+    closeAfterMs: options.closeAfterMs ?? defaultBehavior.closeAfterMs
   };
   let isActive = false;
   let cleanupFns: Array<() => void> = [];
