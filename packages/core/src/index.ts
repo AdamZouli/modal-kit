@@ -1,5 +1,12 @@
 export type ModalListener = () => void;
 
+export type ModalCloseReason =
+  | "escape"
+  | "overlay"
+  | "programmatic"
+  | "action"
+  | "timeout";
+
 export interface ModalBehaviorOptions {
   closeOnEsc?: boolean;
   closeOnOverlay?: boolean;
@@ -17,30 +24,35 @@ export interface ModalState {
 
 export interface ModalManager {
   open: (id: string, options?: ModalBehaviorOptions) => void;
-  close: (id: string) => void;
+  close: (id: string, reason?: ModalCloseReason) => void;
   isOpen: (id: string) => boolean;
   getState: () => ModalState;
+  getLayer: (id: string) => number;
   getOptions: (id: string) => ModalBehaviorOptions | undefined;
+  getLastCloseReason: (id: string) => ModalCloseReason | undefined;
   subscribe: (listener: ModalListener) => () => void;
 }
 
 class ModalManagerImpl implements ModalManager {
   private stack: string[] = [];
   private optionsById = new Map<string, ModalBehaviorOptions>();
+  private lastCloseReasonById = new Map<string, ModalCloseReason>();
   private listeners = new Set<ModalListener>();
 
   open(id: string, options: ModalBehaviorOptions = {}): void {
     this.optionsById.set(id, options);
+    this.lastCloseReasonById.delete(id);
     this.stack = this.stack.filter((entry) => entry !== id);
     this.stack.push(id);
     this.emit();
   }
 
-  close(id: string): void {
+  close(id: string, reason: ModalCloseReason = "programmatic"): void {
     if (!this.optionsById.has(id)) {
       return;
     }
 
+    this.lastCloseReasonById.set(id, reason);
     this.optionsById.delete(id);
     this.stack = this.stack.filter((entry) => entry !== id);
     this.emit();
@@ -58,8 +70,17 @@ class ModalManagerImpl implements ModalManager {
     };
   }
 
+  getLayer(id: string): number {
+    const index = this.stack.indexOf(id);
+    return index === -1 ? -1 : index;
+  }
+
   getOptions(id: string): ModalBehaviorOptions | undefined {
     return this.optionsById.get(id);
+  }
+
+  getLastCloseReason(id: string): ModalCloseReason | undefined {
+    return this.lastCloseReasonById.get(id);
   }
 
   subscribe(listener: ModalListener): () => void {
@@ -85,11 +106,13 @@ export interface ModalDomOptions extends ModalBehaviorOptions {
   labelledBy?: string;
   /** Element id to use for aria-describedby on the dialog container. */
   describedBy?: string;
+  /** Root element that receives layer / buried attributes for stacking UI. */
+  root?: HTMLElement | null;
 }
 
 export interface ModalController {
   open: () => void;
-  close: () => void;
+  close: (reason?: ModalCloseReason) => void;
   isOpen: () => boolean;
   destroy: () => void;
 }
@@ -168,6 +191,36 @@ const getFocusableElements = (container: HTMLElement): HTMLElement[] => {
   });
 };
 
+/** Mark non-top modal roots as buried for stacking UX / a11y. */
+export const syncBuriedSurfaces = (
+  manager: ModalManager,
+  rootsById: Map<string, HTMLElement | null | undefined>
+): void => {
+  const { stack, topId } = manager.getState();
+  for (const id of stack) {
+    const root = rootsById.get(id);
+    if (!root) {
+      continue;
+    }
+    const layer = manager.getLayer(id);
+    root.style.setProperty("--mk-layer", String(Math.max(layer, 0)));
+    root.setAttribute("data-layer", String(Math.max(layer, 0)));
+    if (id === topId) {
+      root.classList.remove("mk-modal--buried");
+      root.removeAttribute("aria-hidden");
+      if ("inert" in root) {
+        (root as HTMLElement & { inert: boolean }).inert = false;
+      }
+    } else {
+      root.classList.add("mk-modal--buried");
+      root.setAttribute("aria-hidden", "true");
+      if ("inert" in root) {
+        (root as HTMLElement & { inert: boolean }).inert = true;
+      }
+    }
+  }
+};
+
 export const createModalController = (
   id: string,
   manager: ModalManager,
@@ -182,8 +235,37 @@ export const createModalController = (
   let lastFocused: HTMLElement | null = null;
   let addedTabIndex = false;
 
+  const syncLayerAttrs = () => {
+    const root = options.root ?? options.container.parentElement;
+    if (!root) {
+      return;
+    }
+    const layer = manager.getLayer(id);
+    if (layer < 0) {
+      return;
+    }
+    root.style.setProperty("--mk-layer", String(layer));
+    root.setAttribute("data-layer", String(layer));
+    const { topId } = manager.getState();
+    if (topId === id) {
+      root.classList.remove("mk-modal--buried");
+      root.removeAttribute("aria-hidden");
+      if ("inert" in root) {
+        (root as HTMLElement & { inert: boolean }).inert = false;
+      }
+    } else {
+      root.classList.add("mk-modal--buried");
+      root.setAttribute("aria-hidden", "true");
+      if ("inert" in root) {
+        (root as HTMLElement & { inert: boolean }).inert = true;
+      }
+    }
+  };
+
   const applyCloseEffects = () => {
     options.container.setAttribute("data-state", "closed");
+    const root = options.root ?? options.container.parentElement;
+    root?.setAttribute("data-state", "closed");
 
     cleanupFns.forEach((cleanup) => cleanup());
     cleanupFns = [];
@@ -215,7 +297,7 @@ export const createModalController = (
 
     if (event.key === "Escape" && behavior.closeOnEsc) {
       event.stopPropagation();
-      manager.close(id);
+      manager.close(id, "escape");
       return;
     }
 
@@ -250,7 +332,11 @@ export const createModalController = (
     if (event.target !== options.overlay) {
       return;
     }
-    manager.close(id);
+    const { topId } = manager.getState();
+    if (topId !== id) {
+      return;
+    }
+    manager.close(id, "overlay");
   };
 
   const applyOpenEffects = () => {
@@ -260,6 +346,8 @@ export const createModalController = (
 
     lastFocused = (document?.activeElement as HTMLElement | null) ?? null;
     options.container.setAttribute("data-state", "open");
+    const root = options.root ?? options.container.parentElement;
+    root?.setAttribute("data-state", "open");
     options.container.setAttribute("aria-modal", "true");
     if (!options.container.hasAttribute("role")) {
       options.container.setAttribute("role", "dialog");
@@ -270,6 +358,8 @@ export const createModalController = (
     if (options.describedBy) {
       options.container.setAttribute("aria-describedby", options.describedBy);
     }
+
+    syncLayerAttrs();
 
     const focusTarget = resolveElement(options.initialFocus);
     const focusable = getFocusableElements(options.container);
@@ -292,7 +382,7 @@ export const createModalController = (
     }
 
     if (behavior.closeAfterMs > 0) {
-      const timerId = setTimeout(() => manager.close(id), behavior.closeAfterMs);
+      const timerId = setTimeout(() => manager.close(id, "timeout"), behavior.closeAfterMs);
       cleanupFns.push(() => clearTimeout(timerId));
     }
   };
@@ -302,6 +392,10 @@ export const createModalController = (
     if (open && !isActive) {
       isActive = true;
       applyOpenEffects();
+      return;
+    }
+    if (open && isActive) {
+      syncLayerAttrs();
       return;
     }
     if (!open && isActive) {
@@ -315,11 +409,14 @@ export const createModalController = (
 
   return {
     open: () => manager.open(id, behavior),
-    close: () => manager.close(id),
+    close: (reason: ModalCloseReason = "programmatic") => manager.close(id, reason),
     isOpen: () => manager.isOpen(id),
     destroy: () => {
       unsubscribe();
-      applyCloseEffects();
+      if (isActive) {
+        isActive = false;
+        applyCloseEffects();
+      }
     }
   };
 };

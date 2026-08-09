@@ -12,8 +12,12 @@
   --mk-danger: #ef4444;
   --mk-danger-strong: #ef4444;
   --mk-success: #22c55e;
-  --mk-duration: 220ms;
+  --mk-duration: 200ms;
+  --mk-exit-duration: 160ms;
   --mk-easing: cubic-bezier(0.16, 1, 0.3, 1);
+  --mk-exit-easing: cubic-bezier(0.4, 0, 1, 1);
+  --mk-z-base: 50;
+  --mk-layer: 0;
 }
 
 .mk-theme-brutalist {
@@ -278,9 +282,19 @@
   to   { opacity: 1; }
 }
 
+@keyframes mk-overlay-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
 @keyframes mk-panel-in {
   from { opacity: 0; transform: scale(0.95) translateY(10px); }
   to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
+@keyframes mk-panel-out {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to   { opacity: 0; transform: scale(0.96) translateY(8px); }
 }
 
 .mk-modal[data-state="open"] .mk-modal__overlay {
@@ -291,10 +305,23 @@
   animation: mk-panel-in var(--mk-duration) var(--mk-easing) both;
 }
 
+.mk-modal[data-state="closed"] .mk-modal__overlay {
+  animation: mk-overlay-out var(--mk-exit-duration) var(--mk-exit-easing) both;
+}
+
+.mk-modal[data-state="closed"] .mk-modal__panel {
+  animation: mk-panel-out var(--mk-exit-duration) var(--mk-exit-easing) both;
+}
+
+.mk-modal--buried .mk-modal__overlay {
+  pointer-events: none;
+  opacity: 0.55;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .mk-modal__overlay,
   .mk-modal__panel {
-    animation: none;
+    animation: none !important;
   }
 }
 
@@ -306,7 +333,7 @@
   align-items: center;
   justify-content: center;
   padding: 32px;
-  z-index: 50;
+  z-index: calc(var(--mk-z-base, 50) + var(--mk-layer, 0));
 }
 
 .mk-modal__panel {
@@ -371,6 +398,50 @@
   border: 1px solid var(--mk-danger);
   border-radius: 6px;
   line-height: 1.4;
+}
+
+.mk-modal__async-success {
+  font-size: 0.875rem;
+  color: var(--mk-success);
+  padding: 8px 10px;
+  border: 1px solid var(--mk-success);
+  border-radius: 6px;
+  line-height: 1.4;
+}
+
+.mk-modal__body {
+  display: grid;
+  gap: 8px;
+}
+
+.mk-modal__footer {
+  display: flex;
+  gap: var(--mk-action-gap);
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.mk-modal__stepper {
+  display: flex;
+  gap: 8px;
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+}
+
+.mk-modal__step {
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--mk-border), transparent 40%);
+}
+
+.mk-modal__step--active {
+  background: var(--mk-focus);
+}
+
+.mk-modal__step--done {
+  background: var(--mk-success);
 }
 
 .mk-modal__actions {

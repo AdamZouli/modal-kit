@@ -3,17 +3,25 @@ export const modalClassNames = {
   overlay: "mk-modal__overlay",
   panel: "mk-modal__panel",
   header: "mk-modal__header",
+  body: "mk-modal__body",
+  footer: "mk-modal__footer",
   icon: "mk-modal__icon",
   text: "mk-modal__text",
   title: "mk-modal__title",
   description: "mk-modal__description",
   details: "mk-modal__details",
   asyncError: "mk-modal__async-error",
+  asyncSuccess: "mk-modal__async-success",
   actions: "mk-modal__actions",
   button: "mk-modal__button",
   confirmButton: "mk-modal__button--confirm",
   cancelButton: "mk-modal__button--cancel",
-  confirmVariant: "mk-modal--confirm"
+  confirmVariant: "mk-modal--confirm",
+  buried: "mk-modal--buried",
+  stepper: "mk-modal__stepper",
+  step: "mk-modal__step",
+  stepActive: "mk-modal__step--active",
+  stepDone: "mk-modal__step--done"
 } as const;
 
 export const themeClassNames = {
@@ -38,3 +46,6 @@ export const themeClassNames = {
 } as const;
 
 export type ModalTheme = keyof typeof themeClassNames;
+
+/** Default exit animation duration in ms (matches CSS --mk-exit-duration). */
+export const MODAL_EXIT_MS = 160;
