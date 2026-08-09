@@ -1,14 +1,15 @@
 {
   "name": "modal-kit",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
     "build": "npm run build --workspace @modal-kit/core && npm run build --workspace @modal-kit/ui && npm run build --workspace @modal-kit/react && npm run build --workspace @modal-kit/vue && npm run build --workspace @modal-kit/web-components",
+    "docs:sync-lib": "node scripts/sync-docs-lib.mjs",
     "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs && node scripts/minify-docs.mjs",
+    "docs:build": "npm run docs:sync-lib && vitepress build docs && node scripts/minify-docs.mjs",
     "docs:preview": "vitepress preview docs",
     "test": "vitest run",
     "lint": "eslint . --ext .ts,.tsx",
@@ -42,6 +43,6 @@
     "vue": "^3.4.30"
   },
   "dependencies": {
-    "@modal-kit/react": "^0.1.0"
+    "@modal-kit/react": "^0.2.0"
   }
 }

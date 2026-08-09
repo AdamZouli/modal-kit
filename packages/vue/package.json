@@ -1,6 +1,6 @@
 {
   "name": "@modal-kit/vue",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "author": "Adam Zouli Dev",
   "type": "module",
   "main": "dist/index.cjs",
@@ -17,8 +17,8 @@
     "dist"
   ],
   "dependencies": {
-    "@modal-kit/core": "^0.1.0",
-    "@modal-kit/ui": "^0.1.0"
+    "@modal-kit/core": "^0.2.0",
+    "@modal-kit/ui": "^0.2.0"
   },
   "peerDependencies": {
     "vue": ">=3"

@@ -4,20 +4,25 @@ var modalClassNames = {
   overlay: "mk-modal__overlay",
   panel: "mk-modal__panel",
   header: "mk-modal__header",
+  body: "mk-modal__body",
+  footer: "mk-modal__footer",
   icon: "mk-modal__icon",
   text: "mk-modal__text",
   title: "mk-modal__title",
   description: "mk-modal__description",
   details: "mk-modal__details",
+  asyncError: "mk-modal__async-error",
+  asyncSuccess: "mk-modal__async-success",
   actions: "mk-modal__actions",
   button: "mk-modal__button",
   confirmButton: "mk-modal__button--confirm",
   cancelButton: "mk-modal__button--cancel",
   confirmVariant: "mk-modal--confirm",
-  drawerVariant: "mk-modal--drawer",
-  popoverVariant: "mk-modal--popover",
-  commandVariant: "mk-modal--command",
-  toastVariant: "mk-modal--toast"
+  buried: "mk-modal--buried",
+  stepper: "mk-modal__stepper",
+  step: "mk-modal__step",
+  stepActive: "mk-modal__step--active",
+  stepDone: "mk-modal__step--done"
 };
 var themeClassNames = {
   brutalist: "mk-theme-brutalist",
@@ -39,7 +44,9 @@ var themeClassNames = {
   signal: "mk-theme-signal",
   aurora: "mk-theme-aurora"
 };
+var MODAL_EXIT_MS = 160;
 export {
+  MODAL_EXIT_MS,
   modalClassNames,
   themeClassNames
 };

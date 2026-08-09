@@ -3,18 +3,21 @@ var ModalManagerImpl = class {
   constructor() {
     this.stack = [];
     this.optionsById = /* @__PURE__ */ new Map();
+    this.lastCloseReasonById = /* @__PURE__ */ new Map();
     this.listeners = /* @__PURE__ */ new Set();
   }
   open(id, options = {}) {
     this.optionsById.set(id, options);
+    this.lastCloseReasonById.delete(id);
     this.stack = this.stack.filter((entry) => entry !== id);
     this.stack.push(id);
     this.emit();
   }
-  close(id) {
+  close(id, reason = "programmatic") {
     if (!this.optionsById.has(id)) {
       return;
     }
+    this.lastCloseReasonById.set(id, reason);
     this.optionsById.delete(id);
     this.stack = this.stack.filter((entry) => entry !== id);
     this.emit();
@@ -29,8 +32,15 @@ var ModalManagerImpl = class {
       topId
     };
   }
+  getLayer(id) {
+    const index = this.stack.indexOf(id);
+    return index === -1 ? -1 : index;
+  }
   getOptions(id) {
     return this.optionsById.get(id);
+  }
+  getLastCloseReason(id) {
+    return this.lastCloseReasonById.get(id);
   }
   subscribe(listener) {
     this.listeners.add(listener);
@@ -48,7 +58,8 @@ var defaultBehavior = {
   closeOnOverlay: true,
   trapFocus: true,
   lockScroll: true,
-  restoreFocus: true
+  restoreFocus: true,
+  closeAfterMs: 0
 };
 var focusableSelector = "a[href], button, input, textarea, select, details, [tabindex]:not([tabindex='-1'])";
 var scrollLockCount = 0;
@@ -101,16 +112,74 @@ var getFocusableElements = (container) => {
     return element.tabIndex >= 0 && element.getClientRects().length > 0;
   });
 };
+var syncBuriedSurfaces = (manager, rootsById) => {
+  const { stack, topId } = manager.getState();
+  for (const id of stack) {
+    const root = rootsById.get(id);
+    if (!root) {
+      continue;
+    }
+    const layer = manager.getLayer(id);
+    root.style.setProperty("--mk-layer", String(Math.max(layer, 0)));
+    root.setAttribute("data-layer", String(Math.max(layer, 0)));
+    if (id === topId) {
+      root.classList.remove("mk-modal--buried");
+      root.removeAttribute("aria-hidden");
+      if ("inert" in root) {
+        root.inert = false;
+      }
+    } else {
+      root.classList.add("mk-modal--buried");
+      root.setAttribute("aria-hidden", "true");
+      if ("inert" in root) {
+        root.inert = true;
+      }
+    }
+  }
+};
 var createModalController = (id, manager, options) => {
   const behavior = {
-    ...defaultBehavior,
-    ...options
+    closeOnEsc: options.closeOnEsc ?? defaultBehavior.closeOnEsc,
+    closeOnOverlay: options.closeOnOverlay ?? defaultBehavior.closeOnOverlay,
+    trapFocus: options.trapFocus ?? defaultBehavior.trapFocus,
+    lockScroll: options.lockScroll ?? defaultBehavior.lockScroll,
+    restoreFocus: options.restoreFocus ?? defaultBehavior.restoreFocus,
+    closeAfterMs: options.closeAfterMs ?? defaultBehavior.closeAfterMs
   };
   let isActive = false;
   let cleanupFns = [];
   let lastFocused = null;
   let addedTabIndex = false;
+  const syncLayerAttrs = () => {
+    const root = options.root ?? options.container.parentElement;
+    if (!root) {
+      return;
+    }
+    const layer = manager.getLayer(id);
+    if (layer < 0) {
+      return;
+    }
+    root.style.setProperty("--mk-layer", String(layer));
+    root.setAttribute("data-layer", String(layer));
+    const { topId } = manager.getState();
+    if (topId === id) {
+      root.classList.remove("mk-modal--buried");
+      root.removeAttribute("aria-hidden");
+      if ("inert" in root) {
+        root.inert = false;
+      }
+    } else {
+      root.classList.add("mk-modal--buried");
+      root.setAttribute("aria-hidden", "true");
+      if ("inert" in root) {
+        root.inert = true;
+      }
+    }
+  };
   const applyCloseEffects = () => {
+    options.container.setAttribute("data-state", "closed");
+    const root = options.root ?? options.container.parentElement;
+    root?.setAttribute("data-state", "closed");
     cleanupFns.forEach((cleanup) => cleanup());
     cleanupFns = [];
     if (behavior.lockScroll) {
@@ -135,7 +204,7 @@ var createModalController = (id, manager, options) => {
     }
     if (event.key === "Escape" && behavior.closeOnEsc) {
       event.stopPropagation();
-      manager.close(id);
+      manager.close(id, "escape");
       return;
     }
     if (!behavior.trapFocus || event.key !== "Tab") {
@@ -165,17 +234,31 @@ var createModalController = (id, manager, options) => {
     if (event.target !== options.overlay) {
       return;
     }
-    manager.close(id);
+    const { topId } = manager.getState();
+    if (topId !== id) {
+      return;
+    }
+    manager.close(id, "overlay");
   };
   const applyOpenEffects = () => {
     if (behavior.lockScroll) {
       lockScroll();
     }
     lastFocused = document?.activeElement ?? null;
+    options.container.setAttribute("data-state", "open");
+    const root = options.root ?? options.container.parentElement;
+    root?.setAttribute("data-state", "open");
     options.container.setAttribute("aria-modal", "true");
     if (!options.container.hasAttribute("role")) {
       options.container.setAttribute("role", "dialog");
     }
+    if (options.labelledBy) {
+      options.container.setAttribute("aria-labelledby", options.labelledBy);
+    }
+    if (options.describedBy) {
+      options.container.setAttribute("aria-describedby", options.describedBy);
+    }
+    syncLayerAttrs();
     const focusTarget = resolveElement(options.initialFocus);
     const focusable = getFocusableElements(options.container);
     const target = focusTarget ?? focusable[0];
@@ -192,12 +275,20 @@ var createModalController = (id, manager, options) => {
       options.overlay.addEventListener("click", handleOverlayClick);
       cleanupFns.push(() => options.overlay?.removeEventListener("click", handleOverlayClick));
     }
+    if (behavior.closeAfterMs > 0) {
+      const timerId = setTimeout(() => manager.close(id, "timeout"), behavior.closeAfterMs);
+      cleanupFns.push(() => clearTimeout(timerId));
+    }
   };
   const syncState = () => {
     const open = manager.isOpen(id);
     if (open && !isActive) {
       isActive = true;
       applyOpenEffects();
+      return;
+    }
+    if (open && isActive) {
+      syncLayerAttrs();
       return;
     }
     if (!open && isActive) {
@@ -209,15 +300,19 @@ var createModalController = (id, manager, options) => {
   syncState();
   return {
     open: () => manager.open(id, behavior),
-    close: () => manager.close(id),
+    close: (reason = "programmatic") => manager.close(id, reason),
     isOpen: () => manager.isOpen(id),
     destroy: () => {
       unsubscribe();
-      applyCloseEffects();
+      if (isActive) {
+        isActive = false;
+        applyCloseEffects();
+      }
     }
   };
 };
 export {
   createModalController,
-  createModalManager
+  createModalManager,
+  syncBuriedSurfaces
 };

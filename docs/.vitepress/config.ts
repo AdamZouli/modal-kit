@@ -18,7 +18,10 @@ export default defineConfig({
           { text: "Getting Started", link: "/getting-started" },
           { text: "API", link: "/api" },
           { text: "Themes", link: "/themes" },
-          { text: "Examples", link: "/examples" }
+          { text: "Demos", link: "/demos" },
+          { text: "Accessibility", link: "/a11y" },
+          { text: "Examples", link: "/examples" },
+          { text: "Primitives (Phase 2)", link: "/interaction-primitives" }
         ]
       }
     ]

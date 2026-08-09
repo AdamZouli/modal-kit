@@ -171,16 +171,10 @@ export interface ModalPortalProps {
 }
 
 export const ModalPortal = ({ children, container }: ModalPortalProps) => {
-  const [target, setTarget] = useState<Element | null>(null);
-
-  useEffect(() => {
-    setTarget(container ?? document.body);
-  }, [container]);
-
-  if (!target) {
+  if (typeof document === "undefined") {
     return null;
   }
-  return createPortal(children, target);
+  return createPortal(children, container ?? document.body);
 };
 
 export interface ModalProps extends ModalBehaviorOptions {

@@ -1,6 +1,7 @@
 # modal-kit
 
 [![Deploy Docs](https://github.com/AdamZouli/modal-kit/actions/workflows/docs.yml/badge.svg)](https://github.com/AdamZouli/modal-kit/actions/workflows/docs.yml)
+[![CI](https://github.com/AdamZouli/modal-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/AdamZouli/modal-kit/actions/workflows/ci.yml)
 [![npm core](https://img.shields.io/npm/v/@modal-kit/core?label=core)](https://www.npmjs.com/package/@modal-kit/core)
 [![npm ui](https://img.shields.io/npm/v/@modal-kit/ui?label=ui)](https://www.npmjs.com/package/@modal-kit/ui)
 [![npm react](https://img.shields.io/npm/v/@modal-kit/react?label=react)](https://www.npmjs.com/package/@modal-kit/react)
@@ -14,14 +15,15 @@ Modal Kit is a lightweight, accessible modal engine with adapters for React, Vue
 ## Highlights
 - Core logic separated from UI and framework adapters.
 - Focus trap, ESC close, overlay close, scroll lock, and focus restore.
-- Theme system built on CSS variables with multiple design systems.
-- Confirm modal presets (info, approve, destructive) with strict styling rules (delete always destructive).
+- Stacked modals with layer z-index, buried overlays, and close reasons.
+- Theme system built on CSS variables with enter/exit motion.
+- Confirm presets, async confirm with retry, multi-step confirm, and promise `confirm()`.
 
 ## Packages
 - @modal-kit/core - core state and DOM behavior.
 - @modal-kit/ui - CSS themes and class name helpers.
-- @modal-kit/react - React provider, hooks, and confirm modal.
-- @modal-kit/vue - Vue plugin, composables, and confirm modal.
+- @modal-kit/react - React provider, hooks, Modal shell, confirm APIs.
+- @modal-kit/vue - Vue plugin, composables, Modal shell, confirm APIs.
 - @modal-kit/web-components - Web Components based on Lit.
 
 ## Requirements
@@ -97,28 +99,40 @@ const modalClass = `${modalClassNames.panel} ${themeClassNames.cyber}`;
 
 ```tsx
 import "@modal-kit/ui/styles.css";
-import { ModalProvider, useModal, ConfirmModal } from "@modal-kit/react";
+import { ModalProvider, useModal, ConfirmModal, ConfirmHost } from "@modal-kit/react";
 
 const DemoModal = () => {
-	const { isOpen, close } = useModal("demo");
+	const { open } = useModal("demo");
 	return (
-		<ConfirmModal
-			id="demo"
-			open={isOpen}
-			onClose={close}
-			title="Delete file?"
-			body="This action cannot be undone."
-			variant="destructive"
-			theme="noir"
-		/>
+		<>
+			<button type="button" onClick={() => open()}>
+				Delete file
+			</button>
+			<ConfirmModal
+				id="demo"
+				title="Delete file?"
+				description="This action cannot be undone."
+				variant="destructive"
+				theme="noir"
+			/>
+		</>
 	);
 };
 
 const App = () => (
 	<ModalProvider>
-		<DemoModal />
+		<ConfirmHost>
+			<DemoModal />
+		</ConfirmHost>
 	</ModalProvider>
 );
+```
+
+Promise API:
+
+```tsx
+const { confirm } = useConfirm();
+const ok = await confirm({ title: "Delete?", variant: "destructive" });
 ```
 
 ### Vue
@@ -136,16 +150,15 @@ createApp(App).use(ModalKitPlugin).mount("#app");
 <script setup lang="ts">
 import { useModal, ConfirmModal } from "@modal-kit/vue";
 
-const { isOpen, close } = useModal("confirm");
+const { open } = useModal("confirm");
 </script>
 
 <template>
+	<button type="button" @click="open()">Approve</button>
 	<ConfirmModal
 		id="confirm"
-		:open="isOpen"
-		@close="close"
 		title="Approve changes?"
-		body="This will update production."
+		description="This will update production."
 		variant="approve"
 		theme="swiss"
 	/>
@@ -166,7 +179,7 @@ const { isOpen, close } = useModal("confirm");
 		theme="retro"
 		variant="info"
 		title="Heads up"
-		body="Settings will take effect after restart."
+		description="Settings will take effect after restart."
 	></modal-kit-confirm>
 </modal-kit-host>
 ```
@@ -176,33 +189,37 @@ const { isOpen, close } = useModal("confirm");
 The confirm modal supports the following props across adapters:
 
 - `id` (string) - modal identifier.
-- `open` (boolean) - whether the modal is open.
 - `title` (string)
-- `body` (string)
-- `confirmLabel` (string, optional)
-- `cancelLabel` (string, optional)
+- `description` (string)
+- `details` (string, optional)
+- `confirmLabel` / `cancelLabel` (string, optional)
 - `variant` ("info" | "approve" | "destructive")
+- `preset` ("delete" | "approve", optional)
 - `theme` (one of the theme class names)
+- `onConfirm` / `onCancel` (optional; `onConfirm` may return a Promise)
 
 When performing destructive actions (delete, remove, revoke), use `variant="destructive"`.
+
+Open/close is driven by the shared manager (`useModal(id).open()`), not by an `open` prop on React/Vue ConfirmModal. Web Components use a reflected `open` attribute.
 
 ## Themes
 
 Themes are CSS variable overrides applied via classes from `themeClassNames`. The current set includes:
 
-`brutalist`, `retro`, `swiss`, `cyber`, `paper`, `glass`, `y2k`, `mono`, `bauhaus`, `noir`, `pastel`, `terminal`, `candy`, `nature`, `futurist`, `gothic`.
+`brutalist`, `retro`, `swiss`, `cyber`, `paper`, `glass`, `y2k`, `mono`, `bauhaus`, `noir`, `pastel`, `terminal`, `candy`, `nature`, `futurist`, `gothic`, `signal`, `aurora`.
 
 You can compose themes by overriding variables on a wrapper element.
 
 ## Behavior Options
 
-Core behavior options are available on `createModalController`:
+Core behavior options are available on `createModalController` / adapter controllers:
 
 - `closeOnEsc` (default true)
 - `closeOnOverlay` (default true)
 - `trapFocus` (default true)
 - `lockScroll` (default true)
 - `restoreFocus` (default true)
+- `closeAfterMs` (default 0)
 
 ## Examples
 
@@ -225,15 +242,24 @@ examples/
 
 ## Accessibility Notes
 
-- Focus is trapped inside the active modal.
-- The topmost modal handles ESC and overlay clicks.
-- Scroll is locked while a modal is open.
-- Focus is restored on close.
+| Check | Status |
+| --- | --- |
+| Focus trap inside active modal | Yes (core) |
+| Topmost modal handles ESC / overlay | Yes |
+| Scroll lock while open | Yes (ref-counted) |
+| Focus restore on close | Yes |
+| `role="dialog"` + `aria-modal` | Yes |
+| `aria-labelledby` / `aria-describedby` | Yes (adapters) |
+| Buried layers `aria-hidden` / inert | Yes |
+| `prefers-reduced-motion` | Yes (CSS + exit delay) |
+
+Automated smoke coverage lives in core + adapter tests (ESC, overlay, focus trap, confirm flows).
 
 ## Development Scripts
 
 - `npm run build` - build all packages in order.
 - `npm run test` - run vitest across packages.
+- `npm run docs:sync-lib` - copy package builds into `docs/public/lib`.
 
 ## License
 

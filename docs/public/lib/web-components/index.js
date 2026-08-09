@@ -1,22 +1,46 @@
 // src/index.ts
-import { LitElement, css, html } from "lit";
+import { LitElement, css, html, nothing } from "lit";
 import { createRef, ref } from "lit/directives/ref.js";
 import {
   createModalController,
   createModalManager
 } from "@modal-kit/core";
-import { modalClassNames, themeClassNames } from "@modal-kit/ui";
+import { MODAL_EXIT_MS, modalClassNames, themeClassNames } from "@modal-kit/ui";
+var HOST_MANAGER = /* @__PURE__ */ Symbol("modal-kit-host-manager");
+var findHostManager = (el) => {
+  let node = el;
+  while (node) {
+    const host = node;
+    if (host.getManager) {
+      return host.getManager();
+    }
+    if (host[HOST_MANAGER]) {
+      return host[HOST_MANAGER];
+    }
+    node = node.parentElement;
+  }
+  return null;
+};
+var wcIdSeq = 0;
+var nextId = (prefix) => `${prefix}-${++wcIdSeq}`;
 var ModalKitHost = class extends LitElement {
   constructor() {
     super(...arguments);
     this.manager = createModalManager();
   }
+  connectedCallback() {
+    super.connectedCallback();
+    this[HOST_MANAGER] = this.manager;
+  }
+  getManager() {
+    return this.manager;
+  }
   open(id) {
     this.manager.open(id);
     this.requestUpdate();
   }
-  close(id) {
-    this.manager.close(id);
+  close(id, reason = "programmatic") {
+    this.manager.close(id, reason);
     this.requestUpdate();
   }
   isOpen(id) {
@@ -32,10 +56,142 @@ ModalKitHost.styles = css`
     }
   `;
 customElements.define("modal-kit-host", ModalKitHost);
+var ModalKitDialog = class extends LitElement {
+  constructor() {
+    super(...arguments);
+    this.open = false;
+    this.modalId = "";
+    this.theme = "brutalist";
+    this.labelledBy = "";
+    this.describedBy = "";
+    this.manager = null;
+    this.controller = null;
+    this.panelRef = createRef();
+    this.overlayRef = createRef();
+    this.rootRef = createRef();
+    this.resolvedId = "";
+    this.visible = false;
+    this.dataState = "closed";
+    this.exitTimer = null;
+    this.unsubscribe = null;
+  }
+  createRenderRoot() {
+    return this;
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.resolvedId = this.modalId || nextId("mk-dialog");
+    this.manager = findHostManager(this) ?? createModalManager();
+    this.unsubscribe = this.manager.subscribe(() => this.syncFromManager());
+  }
+  disconnectedCallback() {
+    this.controller?.destroy();
+    this.unsubscribe?.();
+    if (this.exitTimer) {
+      window.clearTimeout(this.exitTimer);
+    }
+    super.disconnectedCallback();
+  }
+  firstUpdated() {
+    this.ensureController();
+    this.syncFromManager();
+  }
+  updated(changed) {
+    if (changed.has("open") && this.manager) {
+      if (this.open) {
+        this.manager.open(this.resolvedId);
+      } else if (this.manager.isOpen(this.resolvedId)) {
+        this.manager.close(this.resolvedId, "programmatic");
+      }
+    }
+    this.ensureController();
+  }
+  ensureController() {
+    if (!this.manager || !this.panelRef.value || this.controller) {
+      return;
+    }
+    this.controller = createModalController(this.resolvedId, this.manager, {
+      container: this.panelRef.value,
+      overlay: this.overlayRef.value ?? void 0,
+      root: this.rootRef.value ?? void 0,
+      labelledBy: this.labelledBy || void 0,
+      describedBy: this.describedBy || void 0
+    });
+  }
+  syncFromManager() {
+    if (!this.manager) {
+      return;
+    }
+    const isOpen = this.manager.isOpen(this.resolvedId);
+    if (isOpen) {
+      this.visible = true;
+      this.dataState = "open";
+      this.open = true;
+      if (this.exitTimer) {
+        window.clearTimeout(this.exitTimer);
+        this.exitTimer = null;
+      }
+    } else if (this.visible) {
+      this.dataState = "closed";
+      this.open = false;
+      const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+      this.exitTimer = window.setTimeout(
+        () => {
+          this.visible = false;
+          this.requestUpdate();
+        },
+        reduced ? 0 : MODAL_EXIT_MS
+      );
+    }
+    this.requestUpdate();
+  }
+  render() {
+    if (!this.visible) {
+      return nothing;
+    }
+    const layer = this.manager?.getLayer(this.resolvedId) ?? 0;
+    return html`
+      <div
+        class="${modalClassNames.root} ${themeClassNames[this.theme]}"
+        data-state=${this.dataState}
+        data-layer=${Math.max(layer, 0)}
+        style="--mk-layer: ${Math.max(layer, 0)}"
+        ${ref(this.rootRef)}
+      >
+        <div class=${modalClassNames.overlay} ${ref(this.overlayRef)}>
+          <div
+            class=${modalClassNames.panel}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby=${this.labelledBy || nothing}
+            aria-describedby=${this.describedBy || nothing}
+            ${ref(this.panelRef)}
+          >
+            <slot></slot>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+};
+ModalKitDialog.properties = {
+  open: { type: Boolean, reflect: true },
+  modalId: { type: String, attribute: "modal-id" },
+  theme: { type: String },
+  labelledBy: { type: String, attribute: "labelled-by" },
+  describedBy: { type: String, attribute: "described-by" }
+};
+ModalKitDialog.styles = css`
+    :host {
+      display: contents;
+    }
+  `;
+customElements.define("modal-kit-dialog", ModalKitDialog);
 var ModalKitConfirm = class extends LitElement {
   constructor() {
     super(...arguments);
     this.open = false;
+    this.modalId = "";
     this.title = "";
     this.description = "";
     this.details = "";
@@ -45,49 +201,139 @@ var ModalKitConfirm = class extends LitElement {
     this.preset = "";
     this.icon = "";
     this.theme = "brutalist";
-    this.manager = createModalManager();
+    this.hideCancel = false;
+    this.manager = null;
     this.controller = null;
     this.panelRef = createRef();
     this.overlayRef = createRef();
+    this.rootRef = createRef();
     this.confirmButtonRef = createRef();
+    this.resolvedId = "";
+    this.titleId = "";
+    this.descId = "";
+    this.visible = false;
+    this.dataState = "closed";
+    this.exitTimer = null;
+    this.unsubscribe = null;
+    this.status = "idle";
+    this.asyncError = null;
   }
   createRenderRoot() {
     return this;
   }
-  firstUpdated() {
-    if (!this.panelRef.value) {
-      return;
-    }
-    this.controller = createModalController("confirm", this.manager, {
-      container: this.panelRef.value,
-      overlay: this.overlayRef.value ?? void 0,
-      initialFocus: () => this.confirmButtonRef.value ?? null
-    });
+  connectedCallback() {
+    super.connectedCallback();
+    this.resolvedId = this.modalId || nextId("mk-confirm");
+    this.titleId = `${this.resolvedId}-title`;
+    this.descId = `${this.resolvedId}-desc`;
+    this.manager = findHostManager(this) ?? createModalManager();
+    this.unsubscribe = this.manager.subscribe(() => this.syncFromManager());
   }
   disconnectedCallback() {
     this.controller?.destroy();
+    this.unsubscribe?.();
+    if (this.exitTimer) {
+      window.clearTimeout(this.exitTimer);
+    }
     super.disconnectedCallback();
   }
+  firstUpdated() {
+    this.ensureController();
+    this.syncFromManager();
+  }
   updated(changed) {
-    if (changed.has("open")) {
+    if (changed.has("open") && this.manager) {
       if (this.open) {
-        this.manager.open("confirm");
-      } else {
-        this.manager.close("confirm");
+        this.status = "idle";
+        this.asyncError = null;
+        this.manager.open(this.resolvedId);
+      } else if (this.manager.isOpen(this.resolvedId)) {
+        this.manager.close(this.resolvedId, "programmatic");
       }
     }
+    this.ensureController();
+  }
+  ensureController() {
+    if (!this.manager || !this.panelRef.value || this.controller) {
+      return;
+    }
+    this.controller = createModalController(this.resolvedId, this.manager, {
+      container: this.panelRef.value,
+      overlay: this.overlayRef.value ?? void 0,
+      root: this.rootRef.value ?? void 0,
+      initialFocus: () => this.confirmButtonRef.value ?? null,
+      labelledBy: this.titleId,
+      describedBy: this.descId
+    });
+  }
+  syncFromManager() {
+    if (!this.manager) {
+      return;
+    }
+    const isOpen = this.manager.isOpen(this.resolvedId);
+    if (isOpen) {
+      this.visible = true;
+      this.dataState = "open";
+      this.open = true;
+      if (this.exitTimer) {
+        window.clearTimeout(this.exitTimer);
+        this.exitTimer = null;
+      }
+    } else if (this.visible) {
+      this.dataState = "closed";
+      this.open = false;
+      const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+      this.exitTimer = window.setTimeout(
+        () => {
+          this.visible = false;
+          this.requestUpdate();
+        },
+        reduced ? 0 : MODAL_EXIT_MS
+      );
+    }
+    this.requestUpdate();
   }
   handleCancel() {
-    this.open = false;
-    this.dispatchEvent(new CustomEvent("cancel"));
+    if (this.status === "loading" || this.status === "success") {
+      return;
+    }
+    this.manager?.close(this.resolvedId, "action");
+    this.dispatchEvent(new CustomEvent("cancel", { bubbles: true }));
   }
-  handleConfirm() {
-    this.open = false;
-    this.dispatchEvent(new CustomEvent("confirm"));
+  async handleConfirm() {
+    const detail = { waitUntil: (p) => p };
+    this.dispatchEvent(new CustomEvent("confirm", { bubbles: true, detail }));
+    const maybePromise = detail.promise;
+    if (maybePromise) {
+      this.status = "loading";
+      this.asyncError = null;
+      this.requestUpdate();
+      try {
+        await maybePromise;
+        this.status = "success";
+        this.requestUpdate();
+        window.setTimeout(() => {
+          this.status = "idle";
+          this.manager?.close(this.resolvedId, "action");
+        }, 600);
+      } catch (err) {
+        this.status = "error";
+        this.asyncError = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+        this.requestUpdate();
+      }
+      return;
+    }
+    this.manager?.close(this.resolvedId, "action");
+  }
+  handleRetry() {
+    this.asyncError = null;
+    this.status = "idle";
+    this.requestUpdate();
+    void this.handleConfirm();
   }
   render() {
-    if (!this.open) {
-      return null;
+    if (!this.visible) {
+      return nothing;
     }
     const preset = this.preset === "delete" ? {
       title: "Delete this item?",
@@ -110,40 +356,61 @@ var ModalKitConfirm = class extends LitElement {
     const resolvedCancel = this.cancelLabel || preset?.cancelLabel || "Cancel";
     const resolvedVariant = this.variant || preset?.variant || "approve";
     const resolvedIcon = this.icon || preset?.icon || "?";
+    const layer = this.manager?.getLayer(this.resolvedId) ?? 0;
     return html`
       <div
         class="${modalClassNames.root} ${themeClassNames[this.theme]} ${modalClassNames.confirmVariant}"
         data-variant=${resolvedVariant}
+        data-state=${this.dataState}
+        data-layer=${Math.max(layer, 0)}
+        style="--mk-layer: ${Math.max(layer, 0)}"
+        ${ref(this.rootRef)}
       >
         <div class=${modalClassNames.overlay} ${ref(this.overlayRef)}>
           <div
             class=${modalClassNames.panel}
+            aria-labelledby=${this.titleId}
+            aria-describedby=${resolvedDescription ? this.descId : nothing}
             ${ref(this.panelRef)}
           >
             <div class=${modalClassNames.header}>
-              <div class=${modalClassNames.icon}>${resolvedIcon}</div>
+              <div class=${modalClassNames.icon} aria-hidden="true">${resolvedIcon}</div>
               <div class=${modalClassNames.text}>
-                <div class=${modalClassNames.title}>${resolvedTitle}</div>
-                ${resolvedDescription ? html`<div class=${modalClassNames.description}>${resolvedDescription}</div>` : null}
-                ${this.details ? html`<div class=${modalClassNames.details}>${this.details}</div>` : null}
+                <div class=${modalClassNames.title} id=${this.titleId}>${resolvedTitle}</div>
+                ${resolvedDescription ? html`<div class=${modalClassNames.description} id=${this.descId}>
+                      ${resolvedDescription}
+                    </div>` : nothing}
+                ${this.details ? html`<div class=${modalClassNames.details}>${this.details}</div>` : nothing}
               </div>
             </div>
+            ${this.asyncError ? html`<div class=${modalClassNames.asyncError} role="alert">${this.asyncError}</div>` : nothing}
+            ${this.status === "success" ? html`<div class=${modalClassNames.asyncSuccess} role="status">Done</div>` : nothing}
             <div class=${modalClassNames.actions}>
-              <button
-                class="${modalClassNames.button} ${modalClassNames.cancelButton}"
-                type="button"
-                @click=${this.handleCancel}
-              >
-                ${resolvedCancel}
-              </button>
-              <button
-                class="${modalClassNames.button} ${modalClassNames.confirmButton}"
-                type="button"
-                @click=${this.handleConfirm}
-                ${ref(this.confirmButtonRef)}
-              >
-                ${resolvedConfirm}
-              </button>
+              ${!this.hideCancel ? html`<button
+                    class="${modalClassNames.button} ${modalClassNames.cancelButton}"
+                    type="button"
+                    ?disabled=${this.status === "loading" || this.status === "success"}
+                    @click=${this.handleCancel}
+                  >
+                    ${resolvedCancel}
+                  </button>` : nothing}
+              ${this.status === "error" ? html`<button
+                    class="${modalClassNames.button} ${modalClassNames.confirmButton}"
+                    type="button"
+                    @click=${this.handleRetry}
+                    ${ref(this.confirmButtonRef)}
+                  >
+                    Retry
+                  </button>` : html`<button
+                    class="${modalClassNames.button} ${modalClassNames.confirmButton}"
+                    type="button"
+                    ?disabled=${this.status === "loading" || this.status === "success"}
+                    aria-busy=${this.status === "loading"}
+                    @click=${this.handleConfirm}
+                    ${ref(this.confirmButtonRef)}
+                  >
+                    ${this.status === "loading" ? "\u2026" : resolvedConfirm}
+                  </button>`}
             </div>
           </div>
         </div>
@@ -153,6 +420,7 @@ var ModalKitConfirm = class extends LitElement {
 };
 ModalKitConfirm.properties = {
   open: { type: Boolean, reflect: true },
+  modalId: { type: String, attribute: "modal-id" },
   title: { type: String },
   description: { type: String },
   details: { type: String },
@@ -161,7 +429,8 @@ ModalKitConfirm.properties = {
   variant: { type: String },
   preset: { type: String },
   icon: { type: String },
-  theme: { type: String }
+  theme: { type: String },
+  hideCancel: { type: Boolean, attribute: "hide-cancel" }
 };
 ModalKitConfirm.styles = css`
     :host {
@@ -169,406 +438,8 @@ ModalKitConfirm.styles = css`
     }
   `;
 customElements.define("modal-kit-confirm", ModalKitConfirm);
-var ModalKitDrawer = class extends LitElement {
-  constructor() {
-    super(...arguments);
-    this.open = false;
-    this.title = "";
-    this.description = "";
-    this.side = "right";
-    this.theme = "brutalist";
-    this.manager = createModalManager();
-    this.controller = null;
-    this.panelRef = createRef();
-    this.overlayRef = createRef();
-  }
-  createRenderRoot() {
-    return this;
-  }
-  firstUpdated() {
-    if (!this.panelRef.value) {
-      return;
-    }
-    this.controller = createModalController("drawer", this.manager, {
-      container: this.panelRef.value,
-      overlay: this.overlayRef.value ?? void 0
-    });
-  }
-  disconnectedCallback() {
-    this.controller?.destroy();
-    super.disconnectedCallback();
-  }
-  updated(changed) {
-    if (changed.has("open")) {
-      if (this.open) {
-        this.manager.open("drawer");
-      } else {
-        this.manager.close("drawer");
-      }
-    }
-  }
-  handleClose() {
-    this.open = false;
-    this.dispatchEvent(new CustomEvent("close"));
-  }
-  render() {
-    if (!this.open) {
-      return null;
-    }
-    return html`
-      <div
-        class="${modalClassNames.root} ${themeClassNames[this.theme]} ${modalClassNames.drawerVariant}"
-        data-side=${this.side}
-      >
-        <div class=${modalClassNames.overlay} ${ref(this.overlayRef)}>
-          <div class=${modalClassNames.panel} ${ref(this.panelRef)}>
-            ${this.title ? html`
-                  <div class=${modalClassNames.header}>
-                    <div class=${modalClassNames.text}>
-                      <div class=${modalClassNames.title}>${this.title}</div>
-                      ${this.description ? html`<div class=${modalClassNames.description}>${this.description}</div>` : null}
-                    </div>
-                  </div>
-                ` : null}
-            <div class=${modalClassNames.details}><slot></slot></div>
-            <div class=${modalClassNames.actions}>
-              <button
-                class="${modalClassNames.button} ${modalClassNames.cancelButton}"
-                type="button"
-                @click=${this.handleClose}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-};
-ModalKitDrawer.properties = {
-  open: { type: Boolean, reflect: true },
-  title: { type: String },
-  description: { type: String },
-  side: { type: String },
-  theme: { type: String }
-};
-ModalKitDrawer.styles = css`
-    :host {
-      display: contents;
-    }
-  `;
-customElements.define("modal-kit-drawer", ModalKitDrawer);
-var ModalKitPopover = class extends LitElement {
-  constructor() {
-    super(...arguments);
-    this.open = false;
-    this.title = "";
-    this.description = "";
-    this.anchor = "";
-    this.theme = "brutalist";
-    this.manager = createModalManager();
-    this.controller = null;
-    this.panelRef = createRef();
-    this.overlayRef = createRef();
-    this.positionRaf = 0;
-    this.handleViewportChange = () => this.schedulePosition();
-  }
-  createRenderRoot() {
-    return this;
-  }
-  firstUpdated() {
-    if (!this.panelRef.value) {
-      return;
-    }
-    this.controller = createModalController("popover", this.manager, {
-      container: this.panelRef.value,
-      overlay: this.overlayRef.value ?? void 0,
-      trapFocus: false,
-      lockScroll: false
-    });
-  }
-  connectedCallback() {
-    super.connectedCallback();
-    window.addEventListener("resize", this.handleViewportChange);
-    window.addEventListener("scroll", this.handleViewportChange, true);
-  }
-  disconnectedCallback() {
-    this.controller?.destroy();
-    window.removeEventListener("resize", this.handleViewportChange);
-    window.removeEventListener("scroll", this.handleViewportChange, true);
-    if (this.positionRaf) {
-      cancelAnimationFrame(this.positionRaf);
-      this.positionRaf = 0;
-    }
-    super.disconnectedCallback();
-  }
-  updated(changed) {
-    if (changed.has("open")) {
-      if (this.open) {
-        this.manager.open("popover");
-        this.updateComplete.then(() => this.schedulePosition());
-      } else {
-        this.manager.close("popover");
-      }
-    }
-    if (changed.has("anchor")) {
-      this.schedulePosition();
-    }
-  }
-  handleClose() {
-    this.open = false;
-    this.dispatchEvent(new CustomEvent("close"));
-  }
-  schedulePosition() {
-    if (this.positionRaf) {
-      cancelAnimationFrame(this.positionRaf);
-    }
-    this.positionRaf = requestAnimationFrame(() => {
-      this.positionRaf = 0;
-      this.updatePosition();
-      const panel = this.panelRef.value;
-      if (panel && panel.offsetWidth === 0) {
-        this.schedulePosition();
-      }
-    });
-  }
-  updatePosition() {
-    const panel = this.panelRef.value;
-    if (!panel || !this.anchor) {
-      return;
-    }
-    const anchorEl = document.querySelector(this.anchor);
-    if (!anchorEl) {
-      return;
-    }
-    const rect = anchorEl.getBoundingClientRect();
-    const panelWidth = panel.offsetWidth || 280;
-    const top = rect.bottom + 8 + window.scrollY;
-    const left = Math.min(
-      rect.left + window.scrollX,
-      window.scrollX + window.innerWidth - panelWidth - 12
-    );
-    panel.style.top = `${top}px`;
-    panel.style.left = `${left}px`;
-  }
-  render() {
-    if (!this.open) {
-      return null;
-    }
-    return html`
-      <div
-        class="${modalClassNames.root} ${themeClassNames[this.theme]} ${modalClassNames.popoverVariant}"
-      >
-        <div class=${modalClassNames.overlay} ${ref(this.overlayRef)}>
-          <div class=${modalClassNames.panel} ${ref(this.panelRef)}>
-            ${this.title ? html`
-                  <div class=${modalClassNames.header}>
-                    <div class=${modalClassNames.text}>
-                      <div class=${modalClassNames.title}>${this.title}</div>
-                      ${this.description ? html`<div class=${modalClassNames.description}>${this.description}</div>` : null}
-                    </div>
-                  </div>
-                ` : null}
-            <div class=${modalClassNames.details}><slot></slot></div>
-            <div class=${modalClassNames.actions}>
-              <button
-                class="${modalClassNames.button} ${modalClassNames.cancelButton}"
-                type="button"
-                @click=${this.handleClose}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-};
-ModalKitPopover.properties = {
-  open: { type: Boolean, reflect: true },
-  title: { type: String },
-  description: { type: String },
-  anchor: { type: String },
-  theme: { type: String }
-};
-ModalKitPopover.styles = css`
-    :host {
-      display: contents;
-    }
-  `;
-customElements.define("modal-kit-popover", ModalKitPopover);
-var ModalKitCommand = class extends LitElement {
-  constructor() {
-    super(...arguments);
-    this.open = false;
-    this.title = "Command palette";
-    this.description = "";
-    this.placeholder = "Type a command";
-    this.theme = "brutalist";
-    this.manager = createModalManager();
-    this.controller = null;
-    this.panelRef = createRef();
-    this.overlayRef = createRef();
-    this.inputRef = createRef();
-  }
-  createRenderRoot() {
-    return this;
-  }
-  firstUpdated() {
-    if (!this.panelRef.value) {
-      return;
-    }
-    this.controller = createModalController("command", this.manager, {
-      container: this.panelRef.value,
-      overlay: this.overlayRef.value ?? void 0,
-      initialFocus: () => this.inputRef.value ?? null
-    });
-  }
-  disconnectedCallback() {
-    this.controller?.destroy();
-    super.disconnectedCallback();
-  }
-  updated(changed) {
-    if (changed.has("open")) {
-      if (this.open) {
-        this.manager.open("command");
-      } else {
-        this.manager.close("command");
-      }
-    }
-  }
-  handleClose() {
-    this.open = false;
-    this.dispatchEvent(new CustomEvent("close"));
-  }
-  render() {
-    if (!this.open) {
-      return null;
-    }
-    return html`
-      <div
-        class="${modalClassNames.root} ${themeClassNames[this.theme]} ${modalClassNames.commandVariant}"
-      >
-        <div class=${modalClassNames.overlay} ${ref(this.overlayRef)}>
-          <div class=${modalClassNames.panel} ${ref(this.panelRef)}>
-            <div class=${modalClassNames.header}>
-              <div class=${modalClassNames.text}>
-                <div class=${modalClassNames.title}>${this.title}</div>
-                ${this.description ? html`<div class=${modalClassNames.description}>${this.description}</div>` : null}
-              </div>
-            </div>
-            <div class="mk-command">
-              <input
-                class="mk-command__input"
-                ${ref(this.inputRef)}
-                placeholder=${this.placeholder}
-              />
-              <slot></slot>
-            </div>
-            <div class=${modalClassNames.actions}>
-              <button
-                class="${modalClassNames.button} ${modalClassNames.cancelButton}"
-                type="button"
-                @click=${this.handleClose}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-};
-ModalKitCommand.properties = {
-  open: { type: Boolean, reflect: true },
-  title: { type: String },
-  description: { type: String },
-  placeholder: { type: String },
-  theme: { type: String }
-};
-ModalKitCommand.styles = css`
-    :host {
-      display: contents;
-    }
-  `;
-customElements.define("modal-kit-command", ModalKitCommand);
-var ModalKitToast = class extends LitElement {
-  constructor() {
-    super(...arguments);
-    this.open = false;
-    this.title = "Toast";
-    this.description = "";
-    this.duration = 2600;
-    this.theme = "brutalist";
-    this.dismissTimer = null;
-  }
-  createRenderRoot() {
-    return this;
-  }
-  disconnectedCallback() {
-    if (this.dismissTimer) {
-      window.clearTimeout(this.dismissTimer);
-      this.dismissTimer = null;
-    }
-    super.disconnectedCallback();
-  }
-  updated(changed) {
-    if (changed.has("open") && this.open && this.duration > 0) {
-      if (this.dismissTimer) {
-        window.clearTimeout(this.dismissTimer);
-      }
-      this.dismissTimer = window.setTimeout(() => {
-        this.open = false;
-        this.dispatchEvent(new CustomEvent("close"));
-      }, this.duration);
-    }
-  }
-  handleClose() {
-    this.open = false;
-    this.dispatchEvent(new CustomEvent("close"));
-  }
-  render() {
-    if (!this.open) {
-      return null;
-    }
-    return html`
-      <div
-        class="${modalClassNames.root} ${themeClassNames[this.theme]} ${modalClassNames.toastVariant}"
-      >
-        <div class=${modalClassNames.overlay}>
-          <div class=${modalClassNames.panel} role="status" aria-live="polite">
-            <div class="mk-toast__title">${this.title}</div>
-            ${this.description ? html`<div class="mk-toast__description">${this.description}</div>` : null}
-            <button class="mk-toast__close" type="button" @click=${this.handleClose}>
-              Dismiss
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-};
-ModalKitToast.properties = {
-  open: { type: Boolean, reflect: true },
-  title: { type: String },
-  description: { type: String },
-  duration: { type: Number },
-  theme: { type: String }
-};
-ModalKitToast.styles = css`
-    :host {
-      display: contents;
-    }
-  `;
-customElements.define("modal-kit-toast", ModalKitToast);
 export {
-  ModalKitCommand,
   ModalKitConfirm,
-  ModalKitDrawer,
-  ModalKitHost,
-  ModalKitPopover,
-  ModalKitToast
+  ModalKitDialog,
+  ModalKitHost
 };

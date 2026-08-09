@@ -1,5 +1,7 @@
 # Interaction Primitives Spec
 
+> **Phase 2 roadmap** — these primitives are specified here but are **not shipped** in `@modal-kit/*` npm packages yet. Phase 1 focuses on modal excellence (generic Modal, confirm, motion, stacking). Do not treat drawer/toast/command demos as production APIs.
+
 This spec defines the shared behavior for Modal Kit interaction-driven components.
 
 ## Goals

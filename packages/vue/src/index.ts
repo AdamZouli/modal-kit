@@ -227,9 +227,7 @@ export const Modal = defineComponent({
     restoreFocus: { type: Boolean, default: undefined },
     closeAfterMs: { type: Number, default: undefined }
   },
-  emits: {
-    openChange: (_open: boolean, _reason?: ModalCloseReason) => true
-  },
+  emits: ["openChange"],
   setup(props, { slots, emit }) {
     const manager = useManager();
     const { isOpen, layer } = useModal(props.id);
@@ -336,9 +334,7 @@ export const ConfirmModal = defineComponent({
     onConfirm: { type: Function as PropType<() => void | Promise<void>>, default: undefined },
     onCancel: { type: Function as PropType<() => void>, default: undefined }
   },
-  emits: {
-    openChange: (_open: boolean, _reason?: ModalCloseReason) => true
-  },
+  emits: ["openChange"],
   setup(props, { emit }) {
     const manager = useManager();
     const { isOpen, layer, close } = useModal(props.id);
